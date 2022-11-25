@@ -19,9 +19,14 @@ func contactHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "<h1>Contact Page</h1><p>To get in touch, email me at <a href=\"mailto:danny@festor.info\">danny@festor.info</a>.")
 }
 
+func pathHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, r.URL.Path)
+}
+
 func main() {
 	http.HandleFunc("/", homeHandler)
 	http.HandleFunc("/contact", contactHandler)
+	http.HandleFunc("/path", pathHandler)
 	fmt.Println("Starting the server on :3000 ...")
 
 	http.ListenAndServe(":3000", nil)
