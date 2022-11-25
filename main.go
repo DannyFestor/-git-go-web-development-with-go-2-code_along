@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 )
 
 // added modd for dynamic reloading
@@ -35,9 +36,16 @@ func faqHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	r := chi.NewRouter()
+	// r.Use(middleware.RequestID)
+	// r.Use(middleware.RealIP)
+	// r.Use(middleware.Logger)
+	// r.Use(middleware.Recoverer)
 	r.Get("/", homeHandler)
 	r.Get("/contact", contactHandler)
 	r.Get("/faq", faqHandler)
+	r.With(middleware.Logger).Get("/param/{id}", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, chi.URLParam(r, "id"))
+	})
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) { // not needed but nice to have
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 	})
