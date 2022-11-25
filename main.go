@@ -20,12 +20,21 @@ func contactHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func pathHandler(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path == "/" {
+	// if r.URL.Path == "/" {
+	// 	homeHandler(w, r)
+	// } else if r.URL.Path == "/contact" {
+	// 	contactHandler(w, r)
+	// } else {
+	// 	fmt.Fprintf(w, r.URL.Path)
+	// }
+	switch r.URL.Path {
+	case "/":
 		homeHandler(w, r)
-	} else if r.URL.Path == "/contact" {
+	case "/contact":
 		contactHandler(w, r)
-	} else {
+	default:
 		fmt.Fprintf(w, r.URL.Path)
+		// TODO page not found error
 	}
 }
 
