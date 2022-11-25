@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"path/filepath"
 
+	"github.com/danakin/web-dev-with-go-2-code_along/controllers"
 	"github.com/danakin/web-dev-with-go-2-code_along/views"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -14,41 +14,30 @@ import (
 // added modd for dynamic reloading
 // go install github.com/cortesi/modd/cmd/modd@latest
 
-func executeTemplate(w http.ResponseWriter, filepath string) {
-	t, err := views.Parse(filepath)
-	if err != nil {
-		log.Printf("error parsing template: %v", err)
-		http.Error(w, "There was an error parsing the template.", http.StatusInternalServerError)
-		return
-	}
-
-	t.Execute(w, nil)
-}
-
-func homeHandler(w http.ResponseWriter, r *http.Request) {
-	tplPath := filepath.Join("templates", "home.gohtml")
-	executeTemplate(w, tplPath)
-}
-
-func contactHandler(w http.ResponseWriter, r *http.Request) {
-	tplPath := filepath.Join("templates", "contact.gohtml")
-	executeTemplate(w, tplPath)
-}
-
-func faqHandler(w http.ResponseWriter, r *http.Request) {
-	tplPath := filepath.Join("templates", "faq.gohtml")
-	executeTemplate(w, tplPath)
-}
-
 func main() {
 	r := chi.NewRouter()
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
-	r.Get("/", homeHandler)
-	r.Get("/contact", contactHandler)
-	r.Get("/faq", faqHandler)
+
+	tpl, err := views.Parse(filepath.Join("templates", "home.gohtml"))
+	if err != nil {
+		panic(err)
+	}
+	r.Get("/", controllers.StaticHandler(tpl))
+
+	tpl, err = views.Parse(filepath.Join("templates", "contact.gohtml"))
+	if err != nil {
+		panic(err)
+	}
+	r.Get("/contact", controllers.StaticHandler(tpl))
+
+	tpl, err = views.Parse(filepath.Join("templates", "faq.gohtml"))
+	if err != nil {
+		panic(err)
+	}
+	r.Get("/faq", controllers.StaticHandler(tpl))
 	// r.With(middleware.Logger).Get("/param/{id}", func(w http.ResponseWriter, r *http.Request) {
 	// 	fmt.Fprintf(w, chi.URLParam(r, "id"))
 	// })
