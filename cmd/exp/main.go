@@ -15,7 +15,9 @@ func main() {
 		panic(err)
 	}
 
-	user := User{
+	user := struct {
+		Name string
+	}{
 		Name: "Danny Festor",
 	}
 
