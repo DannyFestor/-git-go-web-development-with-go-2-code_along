@@ -33,23 +33,12 @@ func faqHandler(w http.ResponseWriter, r *http.Request) {
 	`)
 }
 
-func pathHandler(w http.ResponseWriter, r *http.Request) {
-	switch r.URL.Path {
-	case "/":
-		homeHandler(w, r)
-	case "/contact":
-		contactHandler(w, r)
-	default:
-		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
-	}
-}
-
 func main() {
 	r := chi.NewRouter()
 	r.Get("/", homeHandler)
 	r.Get("/contact", contactHandler)
 	r.Get("/faq", faqHandler)
-	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
+	r.NotFound(func(w http.ResponseWriter, r *http.Request) { // not needed but nice to have
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 	})
 	fmt.Println("Starting the server on :3000 ...")
