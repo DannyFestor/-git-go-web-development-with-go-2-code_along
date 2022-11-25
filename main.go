@@ -19,20 +19,7 @@ func contactHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "<h1>Contact Page</h1><p>To get in touch, email me at <a href=\"mailto:danny@festor.info\">danny@festor.info</a>.")
 }
 
-// func pathHandler(w http.ResponseWriter, r *http.Request) {
-// 	switch r.URL.Path {
-// 	case "/":
-// 		homeHandler(w, r)
-// 	case "/contact":
-// 		contactHandler(w, r)
-// 	default:
-// 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
-// 	}
-// }
-
-type Router struct{}
-
-func (router Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func pathHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.URL.Path {
 	case "/":
 		homeHandler(w, r)
@@ -43,15 +30,34 @@ func (router Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// type Router struct{}
+
+// func (router Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+// 	switch r.URL.Path {
+// 	case "/":
+// 		homeHandler(w, r)
+// 	case "/contact":
+// 		contactHandler(w, r)
+// 	default:
+// 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+// 	}
+// }
+
 func main() {
 	// http.HandleFunc("/", homeHandler)
-	// http.HandleFunc("/", pathHandler)
+	http.HandleFunc("/", pathHandler)
 	// http.HandleFunc("/contact", contactHandler)
 	// http.HandleFunc("/path", pathHandler)
 	fmt.Println("Starting the server on :3000 ...")
 
 	// http.ListenAndServe(":3000", nil)
 
-	var router Router
-	http.ListenAndServe(":3000", router)
+	// var router Router
+	// http.ListenAndServe(":3000", router)
+
+	// var router http.HandlerFunc = pathHandler
+	// http.ListenAndServe(":3000", router)
+	http.ListenAndServe(":3000", http.HandlerFunc(pathHandler)) // type conversion, not function call, like []byte("string")
+	// http.HandlerFunc <interface> != http.HandleFunc <function>
+	// http.Handler <interface> != http.Handle <function>
 }
