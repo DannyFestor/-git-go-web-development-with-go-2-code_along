@@ -33,7 +33,11 @@ func pathHandler(w http.ResponseWriter, r *http.Request) {
 	case "/contact":
 		contactHandler(w, r)
 	default:
-		fmt.Fprintf(w, r.URL.Path)
+		fmt.Fprintln(w, r.URL.Path)
+		fmt.Fprintln(w, r.URL.RawPath)
+		fmt.Fprintln(w, r.URL.Path)
+		fmt.Fprintln(w, r.URL.RawQuery)
+		fmt.Fprintln(w, r.URL.RawFragment)
 		// TODO page not found error
 	}
 }
