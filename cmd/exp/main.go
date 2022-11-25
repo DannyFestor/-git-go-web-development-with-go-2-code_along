@@ -7,6 +7,7 @@ import (
 
 type User struct {
 	Name string
+	Bio  string // template.HTML would not be escaped
 }
 
 func main() {
@@ -15,10 +16,9 @@ func main() {
 		panic(err)
 	}
 
-	user := struct {
-		Name string
-	}{
+	user := User{
 		Name: "Danny Festor",
+		Bio:  `<script>alert('HAHAHA')</script>`,
 	}
 
 	err = t.Execute(os.Stdout, user)
