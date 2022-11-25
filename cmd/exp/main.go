@@ -6,8 +6,13 @@ import (
 )
 
 type User struct {
-	Name string
-	Bio  string // template.HTML would not be escaped
+	Name      string
+	Bio       string // template.HTML would not be escaped
+	Age       uint32
+	Weight    float32
+	Hobbies   []string
+	Married   bool
+	Knowledge map[string]string
 }
 
 func main() {
@@ -17,8 +22,17 @@ func main() {
 	}
 
 	user := User{
-		Name: "Danny Festor",
-		Bio:  `<script>alert('HAHAHA')</script>`,
+		Name:    "Danny Festor",
+		Bio:     `<script>alert('HAHAHA')</script>`,
+		Age:     38,
+		Weight:  88.5,
+		Hobbies: []string{"Programming", "Bicycle", "Eat"},
+		Married: true,
+		Knowledge: map[string]string{
+			"PHP":        "good",
+			"Go":         "I'm learning, ok?",
+			"Javascript": "cool",
+		},
 	}
 
 	err = t.Execute(os.Stdout, user)

@@ -1,3 +1,35 @@
 <h1>Hello, {{ .Name }}</h1>
 
 <p>{{ .Bio }}</p>
+
+<p>{{ .Age }}</p>
+<p>{{ .Weight }}</p>
+<p>{{ .Hobbies }}</p>
+<p>{{ .Married }}</p>
+<p>{{ .Knowledge }}</p>
+
+<p>{{ .Knowledge.Go }}</p>
+
+<div class="Hobbies">
+{{ range .Hobbies }}
+    <p>{{ . }}</p>
+{{ end }}
+</div>
+
+<div>
+{{ range .Knowledge }}
+    <p>{{ . }}</p>
+{{ end }}
+</div>
+
+<div>
+{{ range $v, $k := .Knowledge }}
+    <p>{{ $v }}: {{ $k }}</p>
+{{ end }}
+</div>
+
+<div>
+    {{ $l := len .Hobbies }}{{ if gt $l 2 }}
+        {{ $l }}
+    {{ end }}
+</div>
