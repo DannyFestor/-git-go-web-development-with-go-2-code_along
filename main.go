@@ -20,13 +20,20 @@ func contactHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func pathHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, r.URL.Path)
+	if r.URL.Path == "/" {
+		homeHandler(w, r)
+	} else if r.URL.Path == "/contact" {
+		contactHandler(w, r)
+	} else {
+		fmt.Fprintf(w, r.URL.Path)
+	}
 }
 
 func main() {
-	http.HandleFunc("/", homeHandler)
-	http.HandleFunc("/contact", contactHandler)
-	http.HandleFunc("/path", pathHandler)
+	// http.HandleFunc("/", homeHandler)
+	http.HandleFunc("/", pathHandler)
+	// http.HandleFunc("/contact", contactHandler)
+	// http.HandleFunc("/path", pathHandler)
 	fmt.Println("Starting the server on :3000 ...")
 
 	http.ListenAndServe(":3000", nil)
