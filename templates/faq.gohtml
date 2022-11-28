@@ -17,18 +17,18 @@
 	<h1>FAQ</h1>
 	<p>Frequently asked questions</p>
     <ul>
-        <li>
-            <b>Q:</b>Q1<br>
-            <b>A:</b> A1
-        </li>
-        <li>
-            <b>Q:</b> Q2<br>
-            <b>A:</b> A2
-        </li>
+        {{ range . }}
+            {{ template "qa" . }}
+        {{ end }}
     </ul>
-	<p></p>
-	<p></p>
-	<p></p>
-	<p></p>
+    
+    {{ define "qa" }}
+    <li>
+        <b>Q:</b>{{ .Question }}<br>
+        <b>A:</b>{{ .Answer }}
+    </li>
+    {{ end }}
+
+    <pre>{{ . }}</pre> <!-- just render whatever data we have as a test -->
 </body>
 </html>
