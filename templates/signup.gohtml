@@ -19,6 +19,10 @@
                 placeholder="Email address" 
                 required 
                 autocomplete="email"
+                value="{{ .Email }}"
+                {{ if not .Email }}
+                autofocus
+                {{ end }}
                 class="py-2 px-3 border border-gray-500 focus:border-blue-500 focus:ring-blue-500 rounded placeholder-gray-400 text-gray-800">
         </label>
         <label class="flex flex-col mb-4 gap-1">
@@ -30,6 +34,9 @@
                 placeholder="Password" 
                 required 
                 autocomplete="off"
+                {{ if .Email }}
+                autofocus
+                {{ end }}
                 class="py-2 px-3 border border-gray-500 focus:border-blue-500 focus:ring-blue-500 rounded placeholder-gray-400 text-gray-800">
         </label>
         <div class="flex justify-end mb-4">
