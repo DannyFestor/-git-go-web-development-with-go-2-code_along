@@ -1,29 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <nav>
-        <ul>
-            <li><a href="/">Home</a></li>
-            <li><a href="/contact">Contact</a></li>
-            <li><a href="/faq">FAQ</a></li>
-        </ul>
-    </nav>
+    {{ template "header" . }}
     <h1>Welcome to my awesome site!</h1>
 
-    {{ template "lorem-ipsum" }}
-    {{ template "lorem-ipsum" }}
-    {{ template "lorem-ipsum" }}
-
-    {{ define "lorem-ipsum" }}
-    <p>
-    Lorem ipsum dolor sit amet consectetur adipisicing elit. Error laboriosam a quae soluta impedit quibusdam placeat voluptatum harum quasi ducimus obcaecati tenetur sit reiciendis adipisci facere, aut hic, totam dignissimos?
-    </p>
-    {{ end }}
-</body>
-</html>
+    {{ template "footer" . }}
