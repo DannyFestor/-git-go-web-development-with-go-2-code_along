@@ -6,14 +6,14 @@
             {{ template "qa" . }}
         {{ end }}
     </ul>
-    
-    {{ define "qa" }}
-    <li>
-        <b>Q:</b>{{ .Question }}<br>
-        <b>A:</b>{{ .Answer }}
-    </li>
-    {{ end }}
 
     <pre>{{ . }}</pre> <!-- just render whatever data we have as a test -->
 
 {{ template "footer" . }}
+
+{{ define "qa" }}
+<li>
+    <b>Q:</b>{{ .Question }}<br>
+    <b>A:</b>{{ .Answer }}
+</li>
+{{ end }}
