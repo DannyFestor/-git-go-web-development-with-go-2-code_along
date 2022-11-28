@@ -16,7 +16,7 @@ func (u User) New(w http.ResponseWriter, r *http.Request) {
 }
 
 func (u User) Store(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "Email: ", r.PostFormValue("email"))
+	fmt.Fprint(w, "Email: ", r.FormValue("email"))
 	fmt.Fprintln(w)
-	fmt.Fprint(w, "Password: ", r.PostFormValue("password"))
+	fmt.Fprint(w, "Password: ", r.FormValue("password"))
 }
