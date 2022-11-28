@@ -8,7 +8,7 @@
   rel="stylesheet">
   <!-- ... -->
 </head>
-<body>
+<body class="min-h-screen flex flex-col">
     <header class="py-2 mb-8 bg-gradient-to-r from-blue-800 to-indigo-800 text-white">
         <nav class="flex justify-between items-center">
             <div class="text-2xl px-4 py-2">📸 Lenslocked 🍔</div>
@@ -26,7 +26,9 @@
 {{ end }}
 
 {{ define "footer" }}
-<footer class="px-6 mt-8">&copy; Danny Festor 2022</footer>
+    <footer class="mt-auto flex items-center w-full h-20 px-6 bg-gradient-to-r from-indigo-800 to-blue-800 text-white">
+        &copy; Danny Festor 2022
+    </footer>
 </body>
 </html>
 {{ end }}
