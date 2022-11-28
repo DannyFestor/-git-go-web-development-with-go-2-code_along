@@ -1,5 +1,6 @@
 version: "3.9"
 
+# docker exec -it web-development-with-go-2-code_along-postgres-1 /usr/bin/psql -U lenslocked -d lenslock
 services:
   postgres:
     image: postgres
