@@ -70,21 +70,51 @@ func main() {
 
 	fmt.Println("Tables Created")
 
-	name := "Danny Festor"
-	email := "denakino@gmail.com"
-	// _, err = db.Exec(`
+	// name := "Danny Festor"
+	// email := "denakino@gmail.com"
+	// // _, err = db.Exec(`
+	// // INSERT INTO users(name, email)
+	// // VALUES ($1, $2);
+	// // `, name, email)
+	// row := db.QueryRow(`
 	// INSERT INTO users(name, email)
-	// VALUES ($1, $2);
+	// VALUES ($1, $2)
+	// RETURNING id;
 	// `, name, email)
-	row := db.QueryRow(`
-	INSERT INTO users(name, email)
-	VALUES ($1, $2)
-	RETURNING id;
-	`, name, email)
-	var id int
-	err = row.Scan(&id)
+	// var id int
+	// err = row.Scan(&id)
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// fmt.Println("User created with ID", id)
+
+	query := `
+	SELECT name, email	
+	FROM users
+	WHERE id=$1;
+	`
+	id := 1
+	row := db.QueryRow(query, id)
+	var name, email string
+	err = row.Scan(&name, &email)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			fmt.Println("Error, no rows")
+			return
+		}
 		panic(err)
 	}
-	fmt.Println("User created with ID", id)
+	fmt.Printf("User information: name=%s email=%s\n", name, email)
+
+	for i := 1; i <= 5; i++ {
+		amount := i * 100
+		desc := fmt.Sprintf("Fake order #%d", i)
+		_, err := db.Exec(`
+		INSERT INTO orders (user_id, amount, description)
+		VALUES ($1, $2, $3);
+		`, id, amount, desc)
+		if err != nil {
+			panic(err)
+		}
+	}
 }
