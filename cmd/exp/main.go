@@ -88,33 +88,70 @@ func main() {
 	// }
 	// fmt.Println("User created with ID", id)
 
+	// query := `
+	// SELECT name, email
+	// FROM users
+	// WHERE id=$1;
+	// `
+	// id := 1
+	// row := db.QueryRow(query, id)
+	// var name, email string
+	// err = row.Scan(&name, &email)
+	// if err != nil {
+	// 	if err == sql.ErrNoRows {
+	// 		fmt.Println("Error, no rows")
+	// 		return
+	// 	}
+	// 	panic(err)
+	// }
+	// fmt.Printf("User information: name=%s email=%s\n", name, email)
+
+	// for i := 1; i <= 5; i++ {
+	// 	amount := i * 100
+	// 	desc := fmt.Sprintf("Fake order #%d", i)
+	// 	_, err := db.Exec(`
+	// 	INSERT INTO orders (user_id, amount, description)
+	// 	VALUES ($1, $2, $3);
+	// 	`, id, amount, desc)
+	// 	if err != nil {
+	// 		panic(err)
+	// 	}
+	// }
+
+	userID := 1
+
+	type Order struct {
+		ID          int
+		UserID      int
+		Amount      int
+		Description string
+	}
+
+	var orders []Order
 	query := `
-	SELECT name, email	
-	FROM users
-	WHERE id=$1;
+	SELECT id, amount, description
+	FROM orders
+	WHERE user_id = $1
 	`
-	id := 1
-	row := db.QueryRow(query, id)
-	var name, email string
-	err = row.Scan(&name, &email)
+	rows, err := db.Query(query, userID)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			fmt.Println("Error, no rows")
-			return
-		}
 		panic(err)
 	}
-	fmt.Printf("User information: name=%s email=%s\n", name, email)
+	defer rows.Close()
 
-	for i := 1; i <= 5; i++ {
-		amount := i * 100
-		desc := fmt.Sprintf("Fake order #%d", i)
-		_, err := db.Exec(`
-		INSERT INTO orders (user_id, amount, description)
-		VALUES ($1, $2, $3);
-		`, id, amount, desc)
+	for rows.Next() {
+		var order Order
+		order.UserID = userID
+		err = rows.Scan(&order.ID, &order.Amount, &order.Description)
 		if err != nil {
 			panic(err)
 		}
+		orders = append(orders, order)
 	}
+
+	if rows.Err() != nil {
+		panic(rows.Err())
+	}
+
+	fmt.Println("Orders:", orders)
 }
