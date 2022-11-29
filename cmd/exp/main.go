@@ -47,6 +47,44 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
 	fmt.Println("Connected to PSQL")
+
+	// Create a table
+	_, err = db.Exec(`
+	CREATE TABLE IF NOT EXISTS users (
+		id SERIAL PRIMARY KEY,
+		email VARCHAR (255) UNIQUE NOT NULL,
+		name TEXT
+	);
+
+	CREATE TABLE IF NOT EXISTS orders (
+		id SERIAL PRIMARY KEY,
+		user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+		amount INT,
+		description TEXT
+	);
+	`)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println("Tables Created")
+
+	name := "Danny Festor"
+	email := "denakino@gmail.com"
+	// _, err = db.Exec(`
+	// INSERT INTO users(name, email)
+	// VALUES ($1, $2);
+	// `, name, email)
+	row := db.QueryRow(`
+	INSERT INTO users(name, email)
+	VALUES ($1, $2)
+	RETURNING id;
+	`, name, email)
+	var id int
+	err = row.Scan(&id)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("User created with ID", id)
 }
