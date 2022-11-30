@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/danakin/web-dev-with-go-2-code_along/controllers"
+	"github.com/danakin/web-dev-with-go-2-code_along/models"
 	"github.com/danakin/web-dev-with-go-2-code_along/templates"
 	"github.com/danakin/web-dev-with-go-2-code_along/views"
 	"github.com/go-chi/chi/v5"
@@ -15,6 +16,19 @@ import (
 // go install github.com/cortesi/modd/cmd/modd@latest
 
 func main() {
+	cfg := models.DefaultPostgresConfig()
+	db, err := models.Open(cfg)
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+
+	err = db.Ping()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Connected!")
+
 	r := chi.NewRouter()
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
@@ -33,10 +47,14 @@ func main() {
 	// tpl = views.Must(views.ParseFS(templates.FS, "signup.gohtml", "tailwind.gohtml"))
 	// r.Get("/signup", controllers.StaticHandler(tpl))
 
-	userController := controllers.User{}
+	userService := models.UserService{
+		DB: db,
+	}
+	userController := controllers.User{
+		UserService: &userService,
+	}
 	userController.Templates.New = views.Must(views.ParseFS(templates.FS, "signup.gohtml", "tailwind.gohtml"))
 	r.Get("/signup", userController.New)
-
 	r.Post("/signup", userController.Store)
 
 	// r.With(middleware.Logger).Get("/param/{id}", func(w http.ResponseWriter, r *http.Request) {
