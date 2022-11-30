@@ -42,3 +42,15 @@ func (u User) Login(w http.ResponseWriter, r *http.Request) {
 	data.Email = r.FormValue("email")
 	u.Templates.Login.Execute(w, data)
 }
+
+func (u User) SignIn(w http.ResponseWriter, r *http.Request) {
+	email := r.FormValue("email")
+	password := r.FormValue("password")
+	user, err := u.UserService.Authenticate(email, password)
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+		return
+	}
+	fmt.Fprintf(w, "User: %+v", user)
+}

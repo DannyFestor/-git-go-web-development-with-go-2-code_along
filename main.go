@@ -59,7 +59,7 @@ func main() {
 
 	userController.Templates.Login = views.Must(views.ParseFS(templates.FS, "login.gohtml", "tailwind.gohtml"))
 	r.Get("/login", userController.Login)
-	// r.Post("/login", userController.New) // TODO
+	r.Post("/login", userController.SignIn)
 
 	// r.With(middleware.Logger).Get("/param/{id}", func(w http.ResponseWriter, r *http.Request) {
 	// 	fmt.Fprintf(w, chi.URLParam(r, "id"))
