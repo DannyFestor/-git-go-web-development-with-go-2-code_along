@@ -61,6 +61,8 @@ func main() {
 	r.Get("/login", userController.Login)
 	r.Post("/login", userController.SignIn)
 
+	r.Get("/me", userController.CurrentUser)
+
 	// r.With(middleware.Logger).Get("/param/{id}", func(w http.ResponseWriter, r *http.Request) {
 	// 	fmt.Fprintf(w, chi.URLParam(r, "id"))
 	// })

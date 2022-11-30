@@ -61,3 +61,15 @@ func (u User) SignIn(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &cookie)
 	fmt.Fprintf(w, "User: %+v", user)
 }
+
+func (u User) CurrentUser(w http.ResponseWriter, r *http.Request) {
+	email, err := r.Cookie("email")
+	if err != nil {
+		fmt.Println("current user: %w\n", err)
+		fmt.Fprintf(w, "The email cookie could not be read.")
+		return
+	}
+
+	fmt.Fprintf(w, "Email cookie: %s\n", email.Value)
+	fmt.Fprintf(w, "Header: %+v\n", r.Header)
+}
