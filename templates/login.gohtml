@@ -1,0 +1,53 @@
+{{ template "header" . }}
+<main class="flex-1 grid place-items-center">
+    <form 
+        action="/login" 
+        method="POST" 
+        class="flex flex-col gap-4 p-8 rounded-lg bg-white shadow">
+        <h1 class="text-center text-3xl font-bold text-gray-800">
+            Log In!
+        </h1>
+        <h2 class="text-center text-xl font-bold mb-4">
+            Welcome back
+        </h2>
+        <label class="flex flex-col gap-1">
+            <span class="font-semibold">Email Address</span>
+            <input 
+                type="email" 
+                id="email" 
+                name="email" 
+                placeholder="Email address" 
+                required 
+                autocomplete="email"
+                value="{{ .Email }}"
+                {{ if not .Email }}autofocus{{ end }}
+                class="py-2 px-3 border border-gray-500 focus:border-blue-500 focus:ring-blue-500 rounded placeholder-gray-400 text-gray-800">
+        </label>
+        <label class="flex flex-col mb-4 gap-1">
+            <span class="font-semibold">Password</span>
+            <input 
+                type="password" 
+                id="password" 
+                name="password" 
+                placeholder="Password" 
+                required 
+                autocomplete="off"
+                {{ if .Email }}autofocus{{ end }}
+                class="py-2 px-3 border border-gray-500 focus:border-blue-500 focus:ring-blue-500 rounded placeholder-gray-400 text-gray-800">
+        </label>
+        <div class="flex justify-end mb-4">
+            <button 
+                type="submit" 
+                class="px-4 py-2 bg-blue-800 text-white font-bold hover:bg-indigo-800 rounded">
+                Log in
+            </button>
+        </div>
+        <div class="flex justify-between text-xs gap-8 text-gray-500">
+            <div>
+                <span>Don't have an account?</span>
+                <a href="/signup" class="underline hover:text-gray-800">Register Today</a>
+            </div>
+        </div>
+    </form>
+</main>
+{{ template "footer" . }}
