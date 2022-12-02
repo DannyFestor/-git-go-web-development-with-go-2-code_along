@@ -2,11 +2,9 @@ package controllers
 
 import (
 	"fmt"
-	"html/template"
 	"net/http"
 
 	"github.com/danakin/web-dev-with-go-2-code_along/models"
-	"github.com/gorilla/csrf"
 )
 
 type User struct {
@@ -19,12 +17,10 @@ type User struct {
 
 func (u User) New(w http.ResponseWriter, r *http.Request) {
 	var data struct {
-		Email     string
-		CSRFField template.HTML
+		Email string
 	}
 	data.Email = r.FormValue("email")
-	data.CSRFField = csrf.TemplateField(r)
-	u.Templates.New.Execute(w, data)
+	u.Templates.New.Execute(w, r, data)
 }
 
 func (u User) Store(w http.ResponseWriter, r *http.Request) {
@@ -44,7 +40,7 @@ func (u User) Login(w http.ResponseWriter, r *http.Request) {
 		Email string
 	}
 	data.Email = r.FormValue("email")
-	u.Templates.Login.Execute(w, data)
+	u.Templates.Login.Execute(w, r, data)
 }
 
 func (u User) SignIn(w http.ResponseWriter, r *http.Request) {
