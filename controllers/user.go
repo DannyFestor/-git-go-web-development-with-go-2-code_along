@@ -2,9 +2,11 @@ package controllers
 
 import (
 	"fmt"
+	"html/template"
 	"net/http"
 
 	"github.com/danakin/web-dev-with-go-2-code_along/models"
+	"github.com/gorilla/csrf"
 )
 
 type User struct {
@@ -17,9 +19,11 @@ type User struct {
 
 func (u User) New(w http.ResponseWriter, r *http.Request) {
 	var data struct {
-		Email string
+		Email     string
+		CSRFField template.HTML
 	}
 	data.Email = r.FormValue("email")
+	data.CSRFField = csrf.TemplateField(r)
 	u.Templates.New.Execute(w, data)
 }
 
