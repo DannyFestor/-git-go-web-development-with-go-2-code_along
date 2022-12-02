@@ -10,6 +10,7 @@ import (
 	"github.com/danakin/web-dev-with-go-2-code_along/views"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/gorilla/csrf"
 )
 
 // added modd for dynamic reloading
@@ -70,5 +71,12 @@ func main() {
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 	})
 	fmt.Println("Starting the server on :3000 ...")
-	http.ListenAndServe(":3000", r)
+
+	csrfKey := "gFvi45R4fy5xNBlnEeZtQbfAVCYEIAUX"
+	csrfMiddleware := csrf.Protect(
+		[]byte(csrfKey),
+		// TODO: set to true for HTTPS production ready code
+		csrf.Secure(false),
+	)
+	http.ListenAndServe(":3000", csrfMiddleware(r))
 }
