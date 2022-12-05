@@ -12,7 +12,8 @@ type User struct {
 		New   Template
 		Login Template
 	}
-	UserService *models.UserService
+	UserService    *models.UserService
+	SessionService *models.SessionService
 }
 
 func (u User) New(w http.ResponseWriter, r *http.Request) {
@@ -32,7 +33,23 @@ func (u User) Store(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
 		return
 	}
-	fmt.Fprintf(w, "User created: %+v", user)
+
+	session, err := u.SessionService.Create(user.ID)
+	if err != nil {
+		fmt.Println(err)
+		// TODO: Long term: show warning about not being able to sign in
+		http.Redirect(w, r, "/login", http.StatusFound)
+		return
+	}
+	cookie := http.Cookie{
+		Name:     "session",
+		Value:    session.Token,
+		Path:     "/",
+		HttpOnly: true,
+	}
+	http.SetCookie(w, &cookie)
+
+	http.Redirect(w, r, "/me", http.StatusFound)
 }
 
 func (u User) Login(w http.ResponseWriter, r *http.Request) {
@@ -53,24 +70,38 @@ func (u User) SignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	session, err := u.SessionService.Create(user.ID)
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+		return
+	}
+
 	cookie := http.Cookie{
-		Name:     "email",
-		Value:    user.Email,
+		Name:     "session",
+		Value:    session.Token,
 		Path:     "/",
 		HttpOnly: true,
 	}
 	http.SetCookie(w, &cookie)
-	fmt.Fprintf(w, "User: %+v", user)
+
+	http.Redirect(w, r, "/me", http.StatusFound)
 }
 
 func (u User) CurrentUser(w http.ResponseWriter, r *http.Request) {
-	email, err := r.Cookie("email")
+	tokenCookie, err := r.Cookie("session")
 	if err != nil {
-		fmt.Println("current user: %w\n", err)
-		fmt.Fprintf(w, "The email cookie could not be read.")
+		fmt.Println("current user method error: %w\n", err)
+		http.Redirect(w, r, "/login", http.StatusFound)
 		return
 	}
 
-	fmt.Fprintf(w, "Email cookie: %s\n", email.Value)
-	fmt.Fprintf(w, "Header: %+v\n", r.Header)
+	user, err := u.SessionService.User(tokenCookie.Value)
+	if err != nil {
+		fmt.Println("current user method error: %w\n", err)
+		http.Redirect(w, r, "/login", http.StatusFound)
+		return
+	}
+
+	fmt.Fprintf(w, "Current User: %s\n", user.Email)
 }
