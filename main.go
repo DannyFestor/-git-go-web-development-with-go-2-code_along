@@ -27,7 +27,8 @@ func main() {
 		DB: db,
 	}
 	sessionService := models.SessionService{
-		DB: db,
+		DB:            db,
+		BytesPerToken: 32,
 	}
 
 	err = db.Ping()
