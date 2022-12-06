@@ -105,6 +105,20 @@ func (ss *SessionService) User(token string) (*User, error) {
 	return &user, nil
 }
 
+func (ss *SessionService) Delete(token string) error {
+	tokenHash := ss.hash(token)
+	query := `
+		DELETE FROM sessions
+		WHERE token_hash = $1;
+	`
+	_, err := ss.DB.Exec(query, tokenHash)
+	if err != nil {
+		return fmt.Errorf("delete: %w", err)
+	}
+
+	return nil
+}
+
 func (ss *SessionService) hash(token string) string {
 	tokenHash := sha256.Sum256([]byte(token))
 	// convert tokenHash<Array> to tokenHash<Slice>
