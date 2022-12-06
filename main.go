@@ -66,6 +66,7 @@ func main() {
 	userController.Templates.Login = views.Must(views.ParseFS(templates.FS, "login.gohtml", "tailwind.gohtml"))
 	r.Get("/login", userController.Login)
 	r.Post("/login", userController.SignIn)
+	r.Post("/logout", userController.SignOut)
 
 	r.Get("/me", userController.CurrentUser)
 
