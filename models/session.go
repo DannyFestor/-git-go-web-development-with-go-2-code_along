@@ -1,6 +1,11 @@
 package models
 
-import "database/sql"
+import (
+	"database/sql"
+	"fmt"
+
+	"github.com/danakin/web-dev-with-go-2-code_along/rand"
+)
 
 type Session struct {
 	ID        int
@@ -14,9 +19,18 @@ type SessionService struct {
 }
 
 func (ss *SessionService) Create(userID int) (*Session, error) {
-	// TODO
-	// 1. Create Session Token
-	return nil, nil
+	token, err := rand.SessionToken()
+	if err != nil {
+		return nil, fmt.Errorf("session token create: %w", err)
+	}
+	// TODO: Hash the Session Token
+	session := Session{
+		UserId: userID,
+		Token:  token,
+		// TODO: Set the TokenHash
+	}
+	// TODO: Store Session in DP
+	return &session, nil
 }
 
 func (ss *SessionService) User(token string) (*User, error) {

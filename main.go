@@ -23,6 +23,12 @@ func main() {
 		panic(err)
 	}
 	defer db.Close()
+	userService := models.UserService{
+		DB: db,
+	}
+	sessionService := models.SessionService{
+		DB: db,
+	}
 
 	err = db.Ping()
 	if err != nil {
@@ -48,11 +54,9 @@ func main() {
 	// tpl = views.Must(views.ParseFS(templates.FS, "signup.gohtml", "tailwind.gohtml"))
 	// r.Get("/signup", controllers.StaticHandler(tpl))
 
-	userService := models.UserService{
-		DB: db,
-	}
 	userController := controllers.User{
-		UserService: &userService,
+		UserService:    &userService,
+		SessionService: &sessionService,
 	}
 	userController.Templates.New = views.Must(views.ParseFS(templates.FS, "signup.gohtml", "tailwind.gohtml"))
 	r.Get("/signup", userController.New)
