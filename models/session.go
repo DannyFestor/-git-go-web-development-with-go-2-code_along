@@ -41,36 +41,20 @@ func (ss *SessionService) Create(userID int) (*Session, error) {
 		TokenHash: ss.hash(token),
 	}
 
-	// Approaches to unique user id in session table
-	// 1
-	//   1. Query for a user's session
-	//   2. If found, update the user's session
-	//   3. If not found, create a new session for the user
-	// 2 implemented below
-	//   1. Try to update session
-	//   2. If err, create new session
 	query := `
-		UPDATE sessions
-		SET token_hash = $2
-		WHERE user_id = $1
+    	INSERT INTO sessions (user_id, token_hash)
+        	VALUES ($1, $2)
+			ON CONFLICT (user_id) DO
+				UPDATE 
+					SET token_hash = $2
 		RETURNING id;
-	`
+    `
 	row := ss.DB.QueryRow(query, session.UserId, session.TokenHash)
 	err = row.Scan(&session.ID)
-	if err == sql.ErrNoRows {
-		query := `
-			INSERT INTO sessions (user_id, token_hash)
-			VALUES ($1, $2)
-			RETURNING id;
-		`
-		row := ss.DB.QueryRow(query, session.UserId, session.TokenHash)
-		err = row.Scan(&session.ID)
-	}
-
 	if err != nil {
 		return nil, fmt.Errorf("create session error: %w", err)
 	}
-
+	fmt.Printf("Session %+v\n", session)
 	return &session, nil
 }
 
