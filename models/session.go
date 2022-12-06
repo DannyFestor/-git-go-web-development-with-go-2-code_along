@@ -40,7 +40,18 @@ func (ss *SessionService) Create(userID int) (*Session, error) {
 		Token:     token,
 		TokenHash: ss.hash(token),
 	}
-	// TODO: Store Session in DB
+
+	query := `
+	INSERT INTO sessions (user_id, token_hash)
+	VALUES ($1, $2)
+	RETURNING id;
+	`
+	row := ss.DB.QueryRow(query, session.UserId, session.TokenHash)
+	err = row.Scan(&session.ID)
+	if err != nil {
+		return nil, fmt.Errorf("create session error: %w", err)
+	}
+
 	return &session, nil
 }
 
