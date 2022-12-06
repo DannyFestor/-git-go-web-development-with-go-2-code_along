@@ -77,6 +77,7 @@ func (ss *SessionService) Create(userID int) (*Session, error) {
 func (ss *SessionService) User(token string) (*User, error) {
 	tokenHash := ss.hash(token)
 
+	// get session
 	var user User
 	query := `
 		SELECT user_id
@@ -88,6 +89,8 @@ func (ss *SessionService) User(token string) (*User, error) {
 	if err != nil {
 		return nil, fmt.Errorf("sessionservice user: %w", err)
 	}
+
+	// get user
 	query = `
 		SELECT email
 		FROM users
