@@ -41,13 +41,8 @@ func (u User) Store(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/login", http.StatusFound)
 		return
 	}
-	cookie := http.Cookie{
-		Name:     "session",
-		Value:    session.Token,
-		Path:     "/",
-		HttpOnly: true,
-	}
-	http.SetCookie(w, &cookie)
+
+	setCookie(w, CookieSession, session.Token)
 
 	http.Redirect(w, r, "/me", http.StatusFound)
 }
@@ -77,26 +72,20 @@ func (u User) SignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cookie := http.Cookie{
-		Name:     "session",
-		Value:    session.Token,
-		Path:     "/",
-		HttpOnly: true,
-	}
-	http.SetCookie(w, &cookie)
+	setCookie(w, CookieSession, session.Token)
 
 	http.Redirect(w, r, "/me", http.StatusFound)
 }
 
 func (u User) CurrentUser(w http.ResponseWriter, r *http.Request) {
-	tokenCookie, err := r.Cookie("session")
+	token, err := readCookie(r, CookieSession)
 	if err != nil {
 		fmt.Println("current user method error: %w\n", err)
 		http.Redirect(w, r, "/login", http.StatusFound)
 		return
 	}
 
-	user, err := u.SessionService.User(tokenCookie.Value)
+	user, err := u.SessionService.User(token)
 	if err != nil {
 		fmt.Println("current user method error: %w\n", err)
 		http.Redirect(w, r, "/login", http.StatusFound)
