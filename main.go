@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/danakin/web-dev-with-go-2-code_along/controllers"
+	"github.com/danakin/web-dev-with-go-2-code_along/migrations"
 	"github.com/danakin/web-dev-with-go-2-code_along/models"
 	"github.com/danakin/web-dev-with-go-2-code_along/templates"
 	"github.com/danakin/web-dev-with-go-2-code_along/views"
@@ -24,7 +25,7 @@ func main() {
 	}
 	defer db.Close()
 
-	err = models.Migrate(db, "migrations")
+	err = models.MigrateFS(db, migrations.FS, ".")
 	if err != nil {
 		panic(err)
 	}
