@@ -41,6 +41,7 @@ func (ss *SessionService) Create(userID int) (*Session, error) {
 		TokenHash: ss.hash(token),
 	}
 
+	// Insert Session into DB, but Update if unique(user_id) already present
 	query := `
     	INSERT INTO sessions (user_id, token_hash)
         	VALUES ($1, $2)
@@ -54,7 +55,7 @@ func (ss *SessionService) Create(userID int) (*Session, error) {
 	if err != nil {
 		return nil, fmt.Errorf("create session error: %w", err)
 	}
-	fmt.Printf("Session %+v\n", session)
+
 	return &session, nil
 }
 
