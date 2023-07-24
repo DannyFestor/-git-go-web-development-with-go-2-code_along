@@ -11,7 +11,7 @@ migration-status:
 
 .PHONY: migration-create
 migration-create: # call with make migration-create name=[name of migration]
-	goose -dir migrations create $(name)
+	goose -dir migrations create $(name) sql
 	goose -dir migrations fix
 
 migrate-up:
