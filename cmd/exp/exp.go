@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"strings"
 )
 
 type ctxKey string
@@ -16,5 +17,12 @@ func main() {
 	ctx = context.WithValue(ctx, favoriteColorKey, "orange")
 
 	val := ctx.Value(favoriteColorKey)
-	fmt.Println(val)
+	strVal, ok := val.(string) // type assertion
+	if !ok {
+		fmt.Println("it isn't an int")
+		return
+	}
+
+	fmt.Println(strVal)
+	fmt.Println(strings.HasPrefix(strVal, "or"))
 }
