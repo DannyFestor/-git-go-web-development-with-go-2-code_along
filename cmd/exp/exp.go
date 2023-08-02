@@ -1,31 +1,14 @@
 package main
 
 import (
+	"context"
 	"fmt"
-
-	"github.com/danakin/web-dev-with-go-2-code_along/models"
 )
 
 func main() {
-	cfg := models.DefaultPostgresConfig()
-	db, err := models.Open(cfg)
-	if err != nil {
-		panic(err)
-	}
-	defer db.Close()
+	ctx := context.Background()
+	ctx = context.WithValue(ctx, "favorite-color", "orange")
 
-	err = db.Ping()
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("Connected!")
-
-	us := models.UserService{
-		DB: db,
-	}
-	user, err := us.Create("bob4@bob.com", "bob123")
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(user)
+	val := ctx.Value("favorite-color")
+	fmt.Println(val)
 }
