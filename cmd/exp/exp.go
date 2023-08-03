@@ -1,9 +1,11 @@
 package main
 
 import (
-	"context"
+	stdctx "context"
 	"fmt"
-	"strings"
+
+	"github.com/danakin/web-dev-with-go-2-code_along/context"
+	"github.com/danakin/web-dev-with-go-2-code_along/models"
 )
 
 type ctxKey string
@@ -13,16 +15,13 @@ const (
 )
 
 func main() {
-	ctx := context.Background()
-	ctx = context.WithValue(ctx, favoriteColorKey, "orange")
-
-	val := ctx.Value(favoriteColorKey)
-	strVal, ok := val.(string) // type assertion
-	if !ok {
-		fmt.Println("it isn't an int")
-		return
+	ctx := stdctx.Background()
+	user := models.User{
+		Email: "danny@festor.info",
 	}
+	ctx = context.WithUser(ctx, &user)
 
-	fmt.Println(strVal)
-	fmt.Println(strings.HasPrefix(strVal, "or"))
+	retrievedUser := context.User(ctx)
+
+	fmt.Println(retrievedUser.Email)
 }
