@@ -83,7 +83,10 @@ func main() {
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) { // not needed but nice to have
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 	})
-	fmt.Println("Starting the server on :3000 ...")
+
+	userMiddleware := controllers.UserMiddleware{
+		SessionService: &sessionService,
+	}
 
 	csrfKey := "gFvi45R4fy5xNBlnEeZtQbfAVCYEIAUX"
 	csrfMiddleware := csrf.Protect(
@@ -91,5 +94,7 @@ func main() {
 		// TODO: set to true for HTTPS production ready code
 		csrf.Secure(false),
 	)
-	http.ListenAndServe(":3000", csrfMiddleware(r))
+
+	fmt.Println("Starting the server on :3000 ...")
+	http.ListenAndServe(":3000", csrfMiddleware(userMiddleware.SetUser(r)))
 }

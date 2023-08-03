@@ -8,12 +8,6 @@ import (
 	"github.com/danakin/web-dev-with-go-2-code_along/models"
 )
 
-type ctxKey string
-
-const (
-	favoriteColorKey ctxKey = "favorite-color"
-)
-
 func main() {
 	ctx := stdctx.Background()
 	user := models.User{
