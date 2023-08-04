@@ -1,21 +1,24 @@
 package main
 
 import (
-	stdctx "context"
-	"fmt"
+	"os"
 
-	"github.com/danakin/web-dev-with-go-2-code_along/context"
-	"github.com/danakin/web-dev-with-go-2-code_along/models"
+	"github.com/go-mail/mail/v2"
 )
 
 func main() {
-	ctx := stdctx.Background()
-	user := models.User{
-		Email: "danny@festor.info",
-	}
-	ctx = context.WithUser(ctx, &user)
+	from := "test@lenslocked.com"
+	to := "danny@festor.info"
+	subject := "This is a test email"
+	plaintext := "This is the body of the email"
+	html := `<h1>Hello there buddy!</h1><p>This is the email</p><p>I hope it finds you well!</p>`
 
-	retrievedUser := context.User(ctx)
+	msg := mail.NewMessage()
+	msg.SetHeader("To", to)
+	msg.SetHeader("From", from)
+	msg.SetHeader("Subject", subject)
+	msg.SetBody("text/plain", plaintext)
+	msg.AddAlternative("text/html", html)
 
-	fmt.Println(retrievedUser.Email)
+	msg.WriteTo(os.Stdout)
 }
