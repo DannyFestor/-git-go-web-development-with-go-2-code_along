@@ -1,3 +1,4 @@
 lenslocked
 pgdata/
 .DS_Store
+.env
