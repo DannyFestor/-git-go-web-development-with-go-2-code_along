@@ -18,6 +18,7 @@ import (
 // go install github.com/cortesi/modd/cmd/modd@latest
 
 func main() {
+	// Set Up DB Connections
 	cfg := models.DefaultPostgresConfig()
 	db, err := models.Open(cfg)
 	if err != nil {
@@ -30,6 +31,13 @@ func main() {
 		panic(err)
 	}
 
+	err = db.Ping()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Connected!")
+
+	// Set Up Services
 	userService := models.UserService{
 		DB: db,
 	}
@@ -38,52 +46,7 @@ func main() {
 		BytesPerToken: 32,
 	}
 
-	err = db.Ping()
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("Connected!")
-
-	r := chi.NewRouter()
-	r.Use(middleware.RequestID)
-	r.Use(middleware.RealIP)
-	r.Use(middleware.Logger)
-	r.Use(middleware.Recoverer)
-
-	tpl := views.Must(views.ParseFS(templates.FS, "home.gohtml", "tailwind.gohtml"))
-	r.Get("/", controllers.StaticHandler(tpl))
-
-	tpl = views.Must(views.ParseFS(templates.FS, "contact.gohtml", "tailwind.gohtml"))
-	r.Get("/contact", controllers.StaticHandler(tpl))
-
-	tpl = views.Must(views.ParseFS(templates.FS, "faq.gohtml", "tailwind.gohtml"))
-	r.Get("/faq", controllers.FAQ(tpl))
-
-	// tpl = views.Must(views.ParseFS(templates.FS, "signup.gohtml", "tailwind.gohtml"))
-	// r.Get("/signup", controllers.StaticHandler(tpl))
-
-	userController := controllers.User{
-		UserService:    &userService,
-		SessionService: &sessionService,
-	}
-	userController.Templates.New = views.Must(views.ParseFS(templates.FS, "signup.gohtml", "tailwind.gohtml"))
-	r.Get("/signup", userController.New)
-	r.Post("/signup", userController.Store)
-
-	userController.Templates.Login = views.Must(views.ParseFS(templates.FS, "login.gohtml", "tailwind.gohtml"))
-	r.Get("/login", userController.Login)
-	r.Post("/login", userController.SignIn)
-	r.Post("/logout", userController.SignOut)
-
-	r.Get("/me", userController.CurrentUser)
-
-	// r.With(middleware.Logger).Get("/param/{id}", func(w http.ResponseWriter, r *http.Request) {
-	// 	fmt.Fprintf(w, chi.URLParam(r, "id"))
-	// })
-	r.NotFound(func(w http.ResponseWriter, r *http.Request) { // not needed but nice to have
-		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
-	})
-
+	// Set Up Middleware
 	userMiddleware := controllers.UserMiddleware{
 		SessionService: &sessionService,
 	}
@@ -95,6 +58,44 @@ func main() {
 		csrf.Secure(false),
 	)
 
+	// Set Up Controller
+	userController := controllers.User{
+		UserService:    &userService,
+		SessionService: &sessionService,
+	}
+	userController.Templates.New = views.Must(views.ParseFS(templates.FS, "signup.gohtml", "tailwind.gohtml"))
+	userController.Templates.Login = views.Must(views.ParseFS(templates.FS, "login.gohtml", "tailwind.gohtml"))
+
+	// Set Up Routing
+	r := chi.NewRouter()
+	r.Use(middleware.RequestID)
+	r.Use(middleware.RealIP)
+	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer)
+	r.Use(csrfMiddleware)
+	r.Use(userMiddleware.SetUser)
+
+	r.Get("/", controllers.StaticHandler(views.Must(views.ParseFS(templates.FS, "home.gohtml", "tailwind.gohtml"))))
+	r.Get("/contact", controllers.StaticHandler(views.Must(views.ParseFS(templates.FS, "contact.gohtml", "tailwind.gohtml"))))
+	r.Get("/faq", controllers.FAQ(views.Must(views.ParseFS(templates.FS, "faq.gohtml", "tailwind.gohtml"))))
+	r.Get("/signup", userController.New)
+	r.Post("/signup", userController.Store)
+	r.Get("/login", userController.Login)
+	r.Post("/login", userController.SignIn)
+	r.Post("/logout", userController.SignOut)
+	r.Route("/users/me", func(r chi.Router) {
+		r.Use(userMiddleware.RequireUser)
+		r.Get("/", userController.CurrentUser)
+		r.Get("/test", func(w http.ResponseWriter, r *http.Request) {
+			fmt.Fprint(w, "Success")
+		})
+	})
+
+	r.NotFound(func(w http.ResponseWriter, r *http.Request) { // not needed but nice to have
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+	})
+
+	// Start the Server
 	fmt.Println("Starting the server on :3000 ...")
-	http.ListenAndServe(":3000", csrfMiddleware(userMiddleware.SetUser(r)))
+	http.ListenAndServe(":3000", r)
 }

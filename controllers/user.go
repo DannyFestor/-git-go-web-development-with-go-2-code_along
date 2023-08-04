@@ -75,7 +75,7 @@ func (u User) SignIn(w http.ResponseWriter, r *http.Request) {
 
 	setCookie(w, CookieSession, session.Token)
 
-	http.Redirect(w, r, "/me", http.StatusFound)
+	http.Redirect(w, r, "/users/me", http.StatusFound)
 }
 
 func (u User) CurrentUser(w http.ResponseWriter, r *http.Request) {
@@ -128,6 +128,18 @@ func (umw UserMiddleware) SetUser(next http.Handler) http.Handler {
 		ctx := r.Context()
 		ctx = context.WithUser(ctx, user)
 		r = r.WithContext(ctx)
+		next.ServeHTTP(w, r)
+	})
+}
+
+func (umw UserMiddleware) RequireUser(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		user := context.User(r.Context())
+		if user == nil {
+			http.Redirect(w, r, "/login", http.StatusFound)
+			return
+		}
+
 		next.ServeHTTP(w, r)
 	})
 }
