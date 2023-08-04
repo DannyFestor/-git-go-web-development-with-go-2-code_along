@@ -2,9 +2,8 @@ package main
 
 import (
 	"fmt"
-	"os"
 
-	"github.com/go-mail/mail/v2"
+	"github.com/danakin/web-dev-with-go-2-code_along/models"
 )
 
 const (
@@ -15,34 +14,22 @@ const (
 )
 
 func main() {
-	from := "test@lenslocked.com"
-	to := "danny@festor.info"
-	subject := "This is a test email"
-	plaintext := "This is the body of the email"
-	html := `<h1>Hello there buddy!</h1><p>This is the email</p><p>I hope it finds you well!</p>`
-
-	msg := mail.NewMessage()
-	msg.SetHeader("To", to)
-	msg.SetHeader("From", from)
-	msg.SetHeader("Subject", subject)
-	msg.SetBody("text/plain", plaintext)
-	msg.AddAlternative("text/html", html)
-
-	msg.WriteTo(os.Stdout)
-
-	dialer := mail.NewDialer(host, port, username, password)
-	// Approach 1: create a sender and a dialer, to send multiple emails from the same sender
-	sender, err := dialer.Dial()
+	email := models.Email{
+		From:      "test@lenslocked.com",
+		To:        "danny@festor.info",
+		Subject:   "This is a test email",
+		Plaintext: "This is the body of the email",
+		HTML:      `<h1>Hello there buddy!</h1><p>This is the email</p><p>I hope it finds you well!</p>`,
+	}
+	es := models.NewEmailService(models.SMTPConfig{
+		Host:     host,
+		Port:     port,
+		Username: username,
+		Password: password,
+	})
+	err := es.Send(email)
 	if err != nil {
 		panic(err)
 	}
-	defer sender.Close()
-	sender.Send(from, []string{to}, msg)
-
-	// Approach 2: dial and send directly
-	err = dialer.DialAndSend(msg)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("Message sent")
+	fmt.Println("Sent!")
 }
