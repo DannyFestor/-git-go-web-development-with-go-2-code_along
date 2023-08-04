@@ -1,9 +1,17 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/go-mail/mail/v2"
+)
+
+const (
+	host     = "localhost" // sandbox.smtp.mailtrap.io etc.
+	port     = 1025        // standard port is 587
+	username = "mailpit"   // mailtrap username
+	password = "mailpit"   // mailtrap password
 )
 
 func main() {
@@ -21,4 +29,20 @@ func main() {
 	msg.AddAlternative("text/html", html)
 
 	msg.WriteTo(os.Stdout)
+
+	dialer := mail.NewDialer(host, port, username, password)
+	// Approach 1: create a sender and a dialer, to send multiple emails from the same sender
+	sender, err := dialer.Dial()
+	if err != nil {
+		panic(err)
+	}
+	defer sender.Close()
+	sender.Send(from, []string{to}, msg)
+
+	// Approach 2: dial and send directly
+	err = dialer.DialAndSend(msg)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Message sent")
 }
