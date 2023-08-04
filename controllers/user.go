@@ -80,10 +80,6 @@ func (u User) SignIn(w http.ResponseWriter, r *http.Request) {
 
 func (u User) CurrentUser(w http.ResponseWriter, r *http.Request) {
 	user := context.User(r.Context())
-	if user == nil {
-		http.Redirect(w, r, "/login", http.StatusFound)
-		return
-	}
 	fmt.Fprintf(w, "Current User: %s\n", user.Email)
 }
 

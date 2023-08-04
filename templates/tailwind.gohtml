@@ -18,12 +18,15 @@
                 <a href="/faq" class="px-4 py-2 rounded hover:bg-black">FAQ</a>
             </div>
             <div class="flex">
+                {{ if currentUser }}
                 <form action="/logout" method="POST">
                     {{ csrfField }}
                     <button type="submit" class="px-4 py-2 rounded hover:bg-black">Sign Out</button>
                 </form>
+                {{ else }}
                 <a href="/login" class="px-4 py-2 rounded hover:bg-black">Sign in</a>
                 <a href="/signup" class="px-4 py-2 rounded hover:bg-black">Sign up</a>
+                {{ end }}
             </div>
         </nav>
     </header>

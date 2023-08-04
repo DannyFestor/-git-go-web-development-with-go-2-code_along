@@ -9,6 +9,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/danakin/web-dev-with-go-2-code_along/context"
+	"github.com/danakin/web-dev-with-go-2-code_along/models"
 	"github.com/gorilla/csrf"
 )
 
@@ -25,6 +27,9 @@ func ParseFS(fs fs.FS, patterns ...string) (Template, error) {
 		template.FuncMap{
 			"csrfField": func() (template.HTML, error) { // gets overwritten in execute because we don't have access to request at this point (this gets run at the start of the app instead of request so we don't have to parse all templates at every request)
 				return "", fmt.Errorf("csrfField template function not implemented")
+			},
+			"currentUser": func() (template.HTML, error) {
+				return "", fmt.Errorf("currentUser template function not implemented")
 			},
 		},
 	)
@@ -65,6 +70,9 @@ func (t Template) Execute(w http.ResponseWriter, r *http.Request, data interface
 		template.FuncMap{
 			"csrfField": func() template.HTML { // update csrfField stub to actually use TemplateField
 				return csrf.TemplateField(r)
+			},
+			"currentUser": func() *models.User {
+				return context.User(r.Context())
 			},
 		},
 	)
