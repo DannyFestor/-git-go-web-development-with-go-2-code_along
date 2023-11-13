@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 
 	"github.com/danakin/web-dev-with-go-2-code_along/context"
 	"github.com/danakin/web-dev-with-go-2-code_along/models"
@@ -10,11 +11,15 @@ import (
 
 type User struct {
 	Templates struct {
-		New   Template
-		Login Template
+		New            Template
+		Login          Template
+		ForgotPassword Template
+		CheckYourEmail Template
 	}
-	UserService    *models.UserService
-	SessionService *models.SessionService
+	UserService          *models.UserService
+	SessionService       *models.SessionService
+	PasswordResetService *models.PasswordResetService
+	EmailService         *models.EmailService
 }
 
 func (u User) New(w http.ResponseWriter, r *http.Request) {
@@ -101,6 +106,46 @@ func (u User) SignOut(w http.ResponseWriter, r *http.Request) {
 	deleteCookie(w, CookieSession)
 
 	http.Redirect(w, r, "/login", http.StatusFound)
+}
+
+func (u User) ForgotPassword(w http.ResponseWriter, r *http.Request) {
+	var data struct {
+		Email string
+	}
+
+	data.Email = r.FormValue("email")
+
+	u.Templates.ForgotPassword.Execute(w, r, data)
+}
+
+func (u User) ProcessForgotPassword(w http.ResponseWriter, r *http.Request) {
+	var data struct {
+		Email string
+	}
+
+	data.Email = r.FormValue("email")
+
+	pwReset, err := u.PasswordResetService.Create(data.Email)
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+		return
+	}
+
+	vals := url.Values{
+		"token": {pwReset.Token},
+	}
+
+	// https://lenslocked.com/reset-pw?token=123
+	err = u.EmailService.ForgotPassword(data.Email, "https://www.lenslocked.com/reset-pw?"+vals.Encode())
+
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+		return
+	}
+
+	u.Templates.CheckYourEmail.Execute(w, r, data)
 }
 
 type UserMiddleware struct {
