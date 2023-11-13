@@ -65,6 +65,7 @@ func main() {
 	}
 	userController.Templates.New = views.Must(views.ParseFS(templates.FS, "signup.gohtml", "tailwind.gohtml"))
 	userController.Templates.Login = views.Must(views.ParseFS(templates.FS, "login.gohtml", "tailwind.gohtml"))
+	userController.Templates.ForgotPassword = views.Must(views.ParseFS(templates.FS, "forgot-pw.gohtml", "tailwind.gohtml"))
 
 	// Set Up Routing
 	r := chi.NewRouter()
@@ -78,11 +79,18 @@ func main() {
 	r.Get("/", controllers.StaticHandler(views.Must(views.ParseFS(templates.FS, "home.gohtml", "tailwind.gohtml"))))
 	r.Get("/contact", controllers.StaticHandler(views.Must(views.ParseFS(templates.FS, "contact.gohtml", "tailwind.gohtml"))))
 	r.Get("/faq", controllers.FAQ(views.Must(views.ParseFS(templates.FS, "faq.gohtml", "tailwind.gohtml"))))
+
 	r.Get("/signup", userController.New)
 	r.Post("/signup", userController.Store)
+
 	r.Get("/login", userController.Login)
 	r.Post("/login", userController.SignIn)
+
 	r.Post("/logout", userController.SignOut)
+
+	r.Get("/forgot-pw", userController.ForgotPassword)
+	r.Post("/forgot-pw", userController.ProcessForgotPassword)
+
 	r.Route("/users/me", func(r chi.Router) {
 		r.Use(userMiddleware.RequireUser)
 		r.Get("/", userController.CurrentUser)
