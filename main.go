@@ -81,6 +81,8 @@ func main() {
 	userController.Templates.New = views.Must(views.ParseFS(templates.FS, "signup.gohtml", "tailwind.gohtml"))
 	userController.Templates.Login = views.Must(views.ParseFS(templates.FS, "login.gohtml", "tailwind.gohtml"))
 	userController.Templates.ForgotPassword = views.Must(views.ParseFS(templates.FS, "forgot-pw.gohtml", "tailwind.gohtml"))
+	userController.Templates.CheckYourEmail = views.Must(views.ParseFS(templates.FS, "check-your-email.gohtml", "tailwind.gohtml"))
+	userController.Templates.ResetPassword = views.Must(views.ParseFS(templates.FS, "reset-pw.gohtml", "tailwind.gohtml"))
 
 	// Set Up Routing
 	r := chi.NewRouter()
@@ -105,6 +107,9 @@ func main() {
 
 	r.Get("/forgot-pw", userController.ForgotPassword)
 	r.Post("/forgot-pw", userController.ProcessForgotPassword)
+
+	r.Get("/reset-pw", userController.ResetPassword)
+	r.Post("/reset-pw", userController.ProcessResetPassword)
 
 	r.Route("/users/me", func(r chi.Router) {
 		r.Use(userMiddleware.RequireUser)
