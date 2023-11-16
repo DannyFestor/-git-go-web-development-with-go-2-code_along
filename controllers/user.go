@@ -6,6 +6,7 @@ import (
 	"net/url"
 
 	"github.com/danakin/web-dev-with-go-2-code_along/context"
+	"github.com/danakin/web-dev-with-go-2-code_along/errors"
 	"github.com/danakin/web-dev-with-go-2-code_along/models"
 )
 
@@ -41,6 +42,9 @@ func (u User) Store(w http.ResponseWriter, r *http.Request) {
 	data.Password = r.FormValue("password")
 	user, err := u.UserService.Create(data.Email, data.Password)
 	if err != nil {
+		if errors.Is(err, models.ErrEmailTaken) {
+			err = errors.Public(err, "That email address is already associated with an account.")
+		}
 		u.Templates.New.Execute(w, r, data, err)
 		return
 	}

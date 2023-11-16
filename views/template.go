@@ -2,6 +2,7 @@ package views
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"html/template"
 	"io"
@@ -13,6 +14,10 @@ import (
 	"github.com/danakin/web-dev-with-go-2-code_along/models"
 	"github.com/gorilla/csrf"
 )
+
+type public interface {
+	Public() string // errors that have a Public() method will be passed to the views
+}
 
 func Must(t Template, err error) Template {
 	if err != nil {
@@ -69,6 +74,7 @@ func (t Template) Execute(w http.ResponseWriter, r *http.Request, data interface
 		return
 	}
 
+	errorMessages := errMessages(errs...)
 	tpl = tpl.Funcs(
 		template.FuncMap{
 			"csrfField": func() template.HTML { // update csrfField stub to actually use TemplateField
@@ -78,10 +84,6 @@ func (t Template) Execute(w http.ResponseWriter, r *http.Request, data interface
 				return context.User(r.Context())
 			},
 			"errors": func() []string {
-				var errorMessages []string
-				for _, err := range errs {
-					errorMessages = append(errorMessages, err.Error())
-				}
 				return errorMessages
 			},
 		},
@@ -96,4 +98,19 @@ func (t Template) Execute(w http.ResponseWriter, r *http.Request, data interface
 		return
 	}
 	io.Copy(w, &buf)
+}
+
+// add function because closure inside template functions are run twice atm...
+func errMessages(errs ...error) []string {
+	var msgs []string
+	for _, err := range errs {
+		var pubErr public
+		if errors.As(err, &pubErr) { // only add errors that implement the public interface to the views
+			msgs = append(msgs, pubErr.Public())
+		} else { // otherwise add a generic error
+			fmt.Println(err)
+			msgs = append(msgs, "Something went wrong.")
+		}
+	}
+	return msgs
 }
