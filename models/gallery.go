@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 )
 
@@ -13,6 +14,29 @@ type Gallery struct {
 
 type GalleryService struct {
 	DB *sql.DB
+}
+
+func (service *GalleryService) ByID(id int) (*Gallery, error) {
+	gallery := Gallery{
+		ID: id,
+	}
+
+	query := `
+	SELECT user_id, title
+	FROM galleries
+	WHERE id = $1;
+	`
+
+	row := service.DB.QueryRow(query, gallery.ID)
+	err := row.Scan(&gallery.UserID, &gallery.Title)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ErrNotFound
+		}
+		return nil, fmt.Errorf("query gallery by id: %w", err)
+	}
+
+	return &gallery, nil
 }
 
 func (service *GalleryService) Create(userID int, title string) (*Gallery, error) {
