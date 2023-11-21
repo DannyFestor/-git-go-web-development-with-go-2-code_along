@@ -28,6 +28,7 @@ func Must(t Template, err error) Template {
 }
 
 func ParseFS(fs fs.FS, patterns ...string) (Template, error) {
+	// templates are parsed from base name only, so having a/foo.gohtml and b/foo.gohtml will be parsed as foo and only b/foo.gohtml will be available; https://pkg.go.dev/html/template#ParseFiles
 	tpl := template.New(path.Base(patterns[0]))
 	tpl = tpl.Funcs(
 		template.FuncMap{
