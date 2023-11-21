@@ -115,7 +115,7 @@ func (service *GalleryService) Delete(gallery *Gallery) error {
 
 	_, err := service.DB.Exec(query, gallery.ID)
 	if err != nil {
-		return nil, fmt.Errorf("delete gallery: %w", err)
+		return fmt.Errorf("delete gallery: %w", err)
 	}
 
 	return nil
