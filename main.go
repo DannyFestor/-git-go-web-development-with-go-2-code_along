@@ -60,6 +60,10 @@ func main() {
 
 	emailService := models.NewEmailService(cfg.SMTP)
 
+	galleryService := models.GalleryService{
+		DB: db,
+	}
+
 	// Set Up Middleware
 	userMiddleware := controllers.UserMiddleware{
 		SessionService: sessionService,
@@ -83,6 +87,11 @@ func main() {
 	userController.Templates.ForgotPassword = views.Must(views.ParseFS(templates.FS, "forgot-pw.gohtml", "tailwind.gohtml"))
 	userController.Templates.CheckYourEmail = views.Must(views.ParseFS(templates.FS, "check-your-email.gohtml", "tailwind.gohtml"))
 	userController.Templates.ResetPassword = views.Must(views.ParseFS(templates.FS, "reset-pw.gohtml", "tailwind.gohtml"))
+
+	galleryController := controllers.Gallery{
+		GalleryService: &galleryService,
+	}
+	galleryController.Templates.New = views.Must(views.ParseFS(templates.FS, "galleries/new.gohtml", "tailwind.gohtml"))
 
 	// Set Up Routing
 	r := chi.NewRouter()
@@ -110,6 +119,8 @@ func main() {
 
 	r.Get("/reset-pw", userController.ResetPassword)
 	r.Post("/reset-pw", userController.ProcessResetPassword)
+
+	r.Get("/galleries/new", galleryController.New)
 
 	r.Route("/users/me", func(r chi.Router) {
 		r.Use(userMiddleware.RequireUser)
