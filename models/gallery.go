@@ -91,3 +91,32 @@ func (service *GalleryService) Create(userID int, title string) (*Gallery, error
 
 	return &gallery, nil
 }
+
+func (service *GalleryService) Update(gallery *Gallery) error {
+	query := `
+	UPDATE galleries
+	SET title = $2
+	WHERE id = $1;
+	`
+
+	_, err := service.DB.Exec(query, gallery.ID, gallery.Title)
+	if err != nil {
+		return fmt.Errorf("update gallery: %w", err)
+	}
+
+	return nil
+}
+
+func (service *GalleryService) Delete(gallery *Gallery) error {
+	query := `
+	DELETE FROM galleries
+	WHERE id = $1;
+	`
+
+	_, err := service.DB.Exec(query, gallery.ID)
+	if err != nil {
+		return nil, fmt.Errorf("delete gallery: %w", err)
+	}
+
+	return nil
+}
