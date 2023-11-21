@@ -39,6 +39,39 @@ func (service *GalleryService) ByID(id int) (*Gallery, error) {
 	return &gallery, nil
 }
 
+func (service *GalleryService) ByUserID(userID int) ([]Gallery, error) {
+	query := `
+	SELECT id, title
+	FROM galleries
+	WHERE user_id = $1;
+	`
+
+	rows, err := service.DB.Query(query, userID)
+	if err != nil {
+		return nil, fmt.Errorf("query gallery by user id: %w", err)
+	}
+
+	var galleries []Gallery
+	for rows.Next() {
+		gallery := Gallery{
+			UserID: userID,
+		}
+
+		err := rows.Scan(&gallery.ID, &gallery.Title)
+		if err != nil {
+			return nil, fmt.Errorf("query galleries by user id: %w", err)
+		}
+
+		galleries = append(galleries, gallery)
+	}
+
+	if rows.Err() != nil {
+		return nil, fmt.Errorf("query galleries by user id: %w", err)
+	}
+
+	return galleries, nil
+}
+
 func (service *GalleryService) Create(userID int, title string) (*Gallery, error) {
 	gallery := Gallery{
 		UserID: userID,
