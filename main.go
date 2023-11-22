@@ -93,6 +93,7 @@ func main() {
 		GalleryService: &galleryService,
 	}
 	galleryController.Templates.New = views.Must(views.ParseFS(templates.FS, "galleries/new.gohtml", "tailwind.gohtml"))
+	galleryController.Templates.Edit = views.Must(views.ParseFS(templates.FS, "galleries/edit.gohtml", "tailwind.gohtml"))
 
 	// Set Up Routing
 	r := chi.NewRouter()
@@ -134,6 +135,8 @@ func main() {
 			r.Use(userMiddleware.RequireUser)
 			r.Get("/new", galleryController.Create)
 			r.Post("/", galleryController.Store)
+			r.Get("/{id}/edit", galleryController.Edit)
+			r.Post("/{id}", galleryController.Update) // todo: spoof put method?
 		})
 	})
 
