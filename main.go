@@ -73,6 +73,7 @@ func main() {
 	csrfMiddleware := csrf.Protect(
 		[]byte(csrfKey),
 		csrf.Secure(cfg.CSRF.Secure),
+		csrf.Path("/"),
 	)
 
 	// Set Up Controller
@@ -120,13 +121,18 @@ func main() {
 	r.Get("/reset-pw", userController.ResetPassword)
 	r.Post("/reset-pw", userController.ProcessResetPassword)
 
-	r.Get("/galleries/new", galleryController.New)
-
 	r.Route("/users/me", func(r chi.Router) {
 		r.Use(userMiddleware.RequireUser)
 		r.Get("/", userController.CurrentUser)
 		r.Get("/test", func(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprint(w, "Success")
+		})
+	})
+
+	r.Route("/galleries", func(r chi.Router) {
+		r.Group(func(r chi.Router) {
+			r.Use(userMiddleware.RequireUser)
+			r.Get("/new", galleryController.New)
 		})
 	})
 
