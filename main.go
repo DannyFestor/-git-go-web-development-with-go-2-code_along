@@ -132,7 +132,8 @@ func main() {
 	r.Route("/galleries", func(r chi.Router) {
 		r.Group(func(r chi.Router) {
 			r.Use(userMiddleware.RequireUser)
-			r.Get("/new", galleryController.New)
+			r.Get("/new", galleryController.Create)
+			r.Post("/", galleryController.Store)
 		})
 	})
 
