@@ -23,6 +23,8 @@ type Gallery struct {
 	GalleryService *models.GalleryService
 }
 
+type galleryOpt func(http.ResponseWriter, *http.Request, *models.Gallery) error
+
 func (g Gallery) Index(w http.ResponseWriter, r *http.Request) {
 	type Gallery struct {
 		ID    int
@@ -107,26 +109,9 @@ func (g Gallery) Show(w http.ResponseWriter, r *http.Request) {
 }
 
 func (g Gallery) Edit(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	// add userMustOwnGallery of type galleryOpt as functional option (variadic parameter)
+	gallery, err := g.galleryByID(w, r, userMustOwnGallery)
 	if err != nil {
-		http.Error(w, "Invalid ID", http.StatusNotFound)
-		return
-	}
-
-	gallery, err := g.GalleryService.ByID(id)
-	if err != nil {
-		if err == models.ErrNotFound {
-			http.Error(w, "Gallery not found", http.StatusNotFound)
-			return
-		}
-
-		http.Error(w, "Something went wrong", http.StatusInternalServerError)
-		return
-	}
-
-	user := context.User(r.Context())
-	if gallery.UserID != user.ID {
-		http.Error(w, "You are not authorized to edit this gallery", http.StatusForbidden)
 		return
 	}
 
@@ -142,14 +127,8 @@ func (g Gallery) Edit(w http.ResponseWriter, r *http.Request) {
 }
 
 func (g Gallery) Update(w http.ResponseWriter, r *http.Request) {
-	gallery, err := g.galleryByID(w, r)
+	gallery, err := g.galleryByID(w, r, userMustOwnGallery)
 	if err != nil {
-		return
-	}
-
-	user := context.User(r.Context())
-	if gallery.UserID != user.ID {
-		http.Error(w, "You are not authorized to edit this gallery", http.StatusForbidden)
 		return
 	}
 
@@ -165,12 +144,14 @@ func (g Gallery) Update(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, editPath, http.StatusFound)
 }
 
-func (g Gallery) galleryByID(w http.ResponseWriter, r *http.Request) (*models.Gallery, error) {
+// accept variadic paramters of taype galleryOpt
+func (g Gallery) galleryByID(w http.ResponseWriter, r *http.Request, opts ...galleryOpt) (*models.Gallery, error) {
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
 		http.Error(w, "Invalid ID", http.StatusNotFound)
 		return nil, err
 	}
+
 	gallery, err := g.GalleryService.ByID(id)
 	if err != nil {
 		if errors.Is(err, models.ErrNotFound) {
@@ -180,5 +161,23 @@ func (g Gallery) galleryByID(w http.ResponseWriter, r *http.Request) (*models.Ga
 		http.Error(w, "Something went wrong", http.StatusInternalServerError)
 		return nil, err
 	}
+
+	for _, opt := range opts {
+		err = opt(w, r, gallery)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	return gallery, nil
+}
+
+// type is galleryOpt
+func userMustOwnGallery(w http.ResponseWriter, r *http.Request, gallery *models.Gallery) error {
+	user := context.User(r.Context())
+	if gallery.UserID != user.ID {
+		http.Error(w, "You are not authorized to edit this gallery", http.StatusForbidden)
+		return fmt.Errorf("user does not have access to this gallery")
+	}
+	return nil
 }
