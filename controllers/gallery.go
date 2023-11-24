@@ -13,11 +13,40 @@ import (
 
 type Gallery struct {
 	Templates struct {
-		New  Template
-		Edit Template
+		New   Template
+		Edit  Template
+		Index Template
 	}
 
 	GalleryService *models.GalleryService
+}
+
+func (g Gallery) Index(w http.ResponseWriter, r *http.Request) {
+	type Gallery struct {
+		ID    int
+		Title string
+	}
+
+	var data struct {
+		Galleries []Gallery
+	}
+
+	user := context.User((r.Context()))
+	galleries, err := g.GalleryService.ByUserID(user.ID)
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, "Something went wrong", http.StatusInternalServerError)
+		return
+	}
+
+	for _, gallery := range galleries {
+		data.Galleries = append(data.Galleries, Gallery{
+			ID:    gallery.ID,
+			Title: gallery.Title,
+		})
+	}
+
+	g.Templates.Index.Execute(w, r, data)
 }
 
 func (g Gallery) Create(w http.ResponseWriter, r *http.Request) {
