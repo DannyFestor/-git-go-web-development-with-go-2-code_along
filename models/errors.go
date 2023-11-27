@@ -43,14 +43,14 @@ func checkContentType(r io.ReadSeeker, allowedTypes []string) error {
 	}
 
 	return FileError{
-		Issue: fmt.Sprintf("invalid content type: %w", contentType),
+		Issue: fmt.Sprintf("invalid content type: %v", contentType),
 	}
 }
 
 func checkExtension(filename string, allowedExtensions []string) error {
 	if !hasExtension(filename, allowedExtensions) {
 		return FileError{
-			Issue: fmt.Sprintf("invalid extension: %w", filepath.Ext(filename)),
+			Issue: fmt.Sprintf("invalid extension: %v", filepath.Ext(filename)),
 		}
 	}
 
