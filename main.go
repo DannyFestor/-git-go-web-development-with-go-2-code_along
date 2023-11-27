@@ -134,6 +134,7 @@ func main() {
 
 	r.Route("/galleries", func(r chi.Router) {
 		r.Get("/{id}", galleryController.Show)
+		r.Get("/{id}/images/{filename}", galleryController.Image)
 
 		r.Group(func(r chi.Router) {
 			r.Use(userMiddleware.RequireUser)
