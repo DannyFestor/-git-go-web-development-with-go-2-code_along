@@ -133,6 +133,20 @@ func (service *GalleryService) Delete(gallery *Gallery) error {
 	return nil
 }
 
+func (service *GalleryService) DeleteImage(galleryID int, filename string) error {
+	image, err := service.Image(galleryID, filename)
+	if err != nil {
+		return fmt.Errorf("deleting image: %w", err)
+	}
+
+	err = os.Remove(image.Path)
+	if err != nil {
+		return fmt.Errorf("deleting image: %w", err)
+	}
+
+	return nil
+}
+
 func (service *GalleryService) Images(galleryID int) ([]Image, error) {
 	globPattern := filepath.Join(service.galleryDir(galleryID), "*")
 	allFiles, err := filepath.Glob(globPattern)
