@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"path/filepath"
 	"strconv"
 
 	"github.com/danakin/web-dev-with-go-2-code_along/context"
@@ -203,7 +204,7 @@ func (g Gallery) Destroy(w http.ResponseWriter, r *http.Request) {
 }
 
 func (g Gallery) Image(w http.ResponseWriter, r *http.Request) {
-	filename := chi.URLParam(r, "filename")
+	filename := g.filename(w, r)
 	galleryID, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
 		http.Error(w, "Invalid ID", http.StatusNotFound)
@@ -226,7 +227,7 @@ func (g Gallery) Image(w http.ResponseWriter, r *http.Request) {
 }
 
 func (g Gallery) DeleteImage(w http.ResponseWriter, r *http.Request) {
-	filename := chi.URLParam(r, "filename")
+	filename := g.filename(w, r)
 	gallery, err := g.galleryByID(w, r, userMustOwnGallery)
 	if err != nil {
 		return
@@ -278,4 +279,11 @@ func userMustOwnGallery(w http.ResponseWriter, r *http.Request, gallery *models.
 		return fmt.Errorf("user does not have access to this gallery")
 	}
 	return nil
+}
+
+// prevent weird folder navigation from browser etc
+func (g Gallery) filename(w http.ResponseWriter, r *http.Request) string {
+	filename := chi.URLParam(r, "filename")
+	filename = filepath.Base(filename)
+	return filename
 }
