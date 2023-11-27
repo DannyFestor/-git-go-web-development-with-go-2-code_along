@@ -145,6 +145,7 @@ func main() {
 			r.Post("/{id}", galleryController.Update) // todo: spoof put method?
 			r.Post("/{id}/delete", galleryController.Destroy)
 			r.Post("/{id}/images/{filename}/delete", galleryController.DeleteImage)
+			r.Post("/{id}/images", galleryController.UploadImage)
 		})
 	})
 

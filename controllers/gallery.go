@@ -226,6 +226,45 @@ func (g Gallery) Image(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, image.Path)
 }
 
+func (g Gallery) UploadImage(w http.ResponseWriter, r *http.Request) {
+	gallery, err := g.galleryByID(w, r, userMustOwnGallery)
+	if err != nil {
+		return
+	}
+
+	err = r.ParseMultipartForm(5 << 20) // 5mb
+	if err != nil {
+		http.Error(w, "Something went wrong", http.StatusInternalServerError)
+		return
+	}
+
+	fileHeaders := r.MultipartForm.File["images"] // map of FileHeaders
+	/*
+		type FileHeader struct {
+			Filename string
+			Header   textproto.MIMEHeader
+			Size     int64
+		}
+	*/
+	for _, fileHeader := range fileHeaders {
+		file, err := fileHeader.Open()
+		if err != nil {
+			http.Error(w, "Something went wrong", http.StatusInternalServerError)
+			return
+		}
+		defer file.Close()
+
+		err = g.GalleryService.CreateImage(gallery.ID, fileHeader.Filename, file)
+		if err != nil {
+			http.Error(w, "Something went wrong", http.StatusInternalServerError)
+			return
+		}
+	}
+
+	editPath := fmt.Sprintf("/galleries/%d/edit", gallery.ID)
+	http.Redirect(w, r, editPath, http.StatusFound)
+}
+
 func (g Gallery) DeleteImage(w http.ResponseWriter, r *http.Request) {
 	filename := g.filename(w, r)
 	gallery, err := g.galleryByID(w, r, userMustOwnGallery)
@@ -282,6 +321,8 @@ func userMustOwnGallery(w http.ResponseWriter, r *http.Request, gallery *models.
 }
 
 // prevent weird folder navigation from browser etc
+// takes http://localhost:3000/galleries/2/images/../gallery-1/test.png
+// and returns only test.pnt, stripping out ../gallery-1/
 func (g Gallery) filename(w http.ResponseWriter, r *http.Request) string {
 	filename := chi.URLParam(r, "filename")
 	filename = filepath.Base(filename)
