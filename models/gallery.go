@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"path/filepath"
 )
 
 type Gallery struct {
@@ -14,6 +15,8 @@ type Gallery struct {
 
 type GalleryService struct {
 	DB *sql.DB
+
+	ImagesDir string
 }
 
 func (service *GalleryService) ByID(id int) (*Gallery, error) {
@@ -119,4 +122,13 @@ func (service *GalleryService) Delete(gallery *Gallery) error {
 	}
 
 	return nil
+}
+
+func (service *GalleryService) galleryDir(id int) string {
+	imagesDir := service.ImagesDir
+	if imagesDir == "" {
+		imagesDir = "images"
+	}
+
+	return filepath.Join(imagesDir, fmt.Sprintf("gallery-%d", id))
 }
