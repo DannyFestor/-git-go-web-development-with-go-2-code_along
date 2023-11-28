@@ -1,0 +1,44 @@
+# install tailwind
+$ npm install -D tailwindcss
+
+# initialize tailwind
+$ npx tailwindcss init
+
+# add templates directory to content array in tailwind.config.js:
+$ vim tailwind.config.js
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    "../templates/**/*.{gohtml,html}",
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}
+
+# add tailwind css file
+$ vim styles.css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+# create tailwind asset and watch files for changes
+$ npx tailwindcss -i ./styles.css -o ../assets/styles.css --watch
+
+# add scripts to run tailwind asset creation to package.json
+$ vim package.json
+{
+  "devDependencies": {
+    "tailwindcss": "^3.3.5"
+  },
+  "scripts": {
+    "tailwind-dev": "npx tailwindcss -i ./styles.css -o ../assets/styles.css",
+    "tailwind-prod": "npx tailwindcss -i ./styles.css -o ../assets/styles.css --minify",
+    "tailwind-watch": "npx tailwindcss -i ./styles.css -o ../assets/styles.css --watch"
+  }
+}
+
+# add node_modules to .gitignore
+$ vim .gitignore
+node_modules/

@@ -2,6 +2,9 @@
 include .env
 CONNECTION="host=${PSQL_HOST} port=${PSQL_PORT} user=${PSQL_USER} password=${PSQL_PASSWORD} dbname=${PSQL_DATABASE} sslmode=${PSQL_SSL_MODE}"
 
+make run:
+	go run cmd/server/server.go
+
 up:
 	docker-compose -f docker-compose.yml -f docker-compose.override.yml up -d
 
