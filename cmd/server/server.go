@@ -26,21 +26,28 @@ func main() {
 		panic(err)
 	}
 
+	err = run(cfg)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func run(cfg config) error {
 	// Set Up DB Connections
 	db, err := models.Open(cfg.PSQL)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer db.Close()
 
 	err = models.MigrateFS(db, migrations.FS, ".")
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	err = db.Ping()
 	if err != nil {
-		panic(err)
+		return err
 	}
 	fmt.Println("Connected!")
 
@@ -161,10 +168,7 @@ func main() {
 
 	// Start the Server
 	fmt.Printf("Starting the server on %s ..\n", cfg.Server.Address)
-	err = http.ListenAndServe(cfg.Server.Address, r)
-	if err != nil {
-		panic(err)
-	}
+	return http.ListenAndServe(cfg.Server.Address, r)
 }
 
 type config struct {
