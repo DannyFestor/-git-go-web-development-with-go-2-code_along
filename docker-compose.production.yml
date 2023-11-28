@@ -8,7 +8,8 @@ services:
     restart: always
     volumes:
       - ./images:/app/images
-    ports:
-      - 3000:3000
+    # ports removed in production because caddy server will proxy the go app
+    # ports:
+      # - 3000:3000
     depends_on:
       - postgres
