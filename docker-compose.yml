@@ -1,28 +1,11 @@
 version: "3.9"
 
-# get the name with
-# $ docker ps
-# exec into container
-# $ docker exec -it web-development-with-go-2-code_along-postgres-1 /usr/bin/psql -U lenslocked -d lenslock
+# prod settings
 services:
   postgres:
     image: postgres
     restart: always
     environment:
-      POSTGRES_USER: lenslocked
-      POSTGRES_PASSWORD: lenslocked
-      POSTGRES_DB: lenslocked
-    ports:
-       - 5432:5432
-    volumes:
-      - ./pgdata:/var/lib/postgresql/data
-  adminer: # admin panel like php myadmin
-    image: adminer
-    restart: always
-    environment:
-      ADMINER_DESIGN: dracula
-    ports:
-      - 8080:8080
-
-volumes:
-  pgdata:
+      POSTGRES_USER: ${PSQL_USER}
+      POSTGRES_PASSWORD: ${PSQL_PASSWORD}
+      POSTGRES_DB: ${PSQL_DATABASE}

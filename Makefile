@@ -1,10 +1,15 @@
-DB_HOST=localhost
-DB_PORT=5432
-DB_USER=lenslocked
-DB_PASSWORD=password
-DB_NAME=lenslocked
-SSL=disable
-CONNECTION="host=$(DB_HOST) port=$(DB_PORT) user=$(DB_USER) password=$(DB_PASSWORD) dbname=$(DB_NAME) sslmode=$(SSL)"
+#!make
+include .env
+CONNECTION="host=${PSQL_HOST} port=${PSQL_PORT} user=${PSQL_USER} password=${PSQL_PASSWORD} dbname=${PSQL_DATABASE} sslmode=${PSQL_SSL_MODE}"
+
+up:
+	docker-compose -f docker-compose.yml -f docker-compose.override.yml up -d
+
+up-prod:
+	docker-compose -f docker-compose.yml up -d
+
+down:
+	docker-compose down
 
 migration-status:
 	goose -dir migrations postgres $(CONNECTION) status
@@ -22,3 +27,4 @@ migrate-down:
 
 migrate-redo:
 	goose -dir migrations postgres $(CONNECTION) redo
+

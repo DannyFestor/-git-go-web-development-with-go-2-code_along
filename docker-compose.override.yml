@@ -1,0 +1,28 @@
+version: "3.9"
+
+# override in dev
+# run with
+# docker-compose -f docker-compose.yml -f docker-compose.override.yml up
+# docker-compose -f docker-compose.yml -f docker-compose.override.yml down
+
+# get the name with
+# $ docker ps
+# exec into container
+# $ docker exec -it web-development-with-go-2-code_along-postgres-1 /usr/bin/psql -U lenslocked -d lenslock
+services:
+  postgres:
+    ports:
+       - 5432:5432
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+
+  adminer: # admin panel like php myadmin
+    image: adminer
+    restart: always
+    environment:
+      ADMINER_DESIGN: dracula
+    ports:
+      - 8080:8080
+
+volumes:
+  pgdata:
