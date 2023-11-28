@@ -9,10 +9,13 @@ up:
 	docker-compose -f docker-compose.yml -f docker-compose.override.yml up -d
 
 up-prod:
-	docker-compose -f docker-compose.yml up -d
+	docker-compose -f docker-compose.yml -f docker-compose.production.yml up -d
 
 down:
-	docker-compose down
+	docker-compose -f docker-compose.yml -f docker-compose.override.yml down
+
+down-prod:
+	docker-compose -f docker-compose.yml -f docker-compose.production.yml down
 
 migration-status:
 	goose -dir migrations postgres $(CONNECTION) status
