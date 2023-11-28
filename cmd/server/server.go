@@ -149,6 +149,12 @@ func main() {
 		})
 	})
 
+	// http.Dir is type String that has the receiver function Open(name string) (File, error).
+	// With this, it implements the http.FileSystem interface.
+	// This syntax typecasts the string "assets" to type http.Dir .
+	assetsHandler := http.FileServer(http.Dir("assets"))
+	r.Get("/assets/*", http.StripPrefix("/assets", assetsHandler).ServeHTTP)
+
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) { // not needed but nice to have
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 	})
