@@ -13,3 +13,13 @@ services:
       # - 3000:3000
     depends_on:
       - postgres 
+
+  caddy:
+    image: caddy
+    restart: always
+    ports:
+      - 80:80
+      - 443:443
+      # - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile

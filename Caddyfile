@@ -1,0 +1,5 @@
+# TODO: Replace this with a domain before deploying.
+:80
+
+# Reverse Proxy to the Docker Container called server on port 3000
+reverse_proxy server:3000
