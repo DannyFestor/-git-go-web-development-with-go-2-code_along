@@ -11,6 +11,9 @@ up:
 up-prod:
 	docker-compose -f docker-compose.yml -f docker-compose.production.yml up -d
 
+up-build-prod:
+	docker-compose -f docker-compose.yml -f docker-compose.production.yml up --build -d
+
 down:
 	docker-compose -f docker-compose.yml -f docker-compose.override.yml down
 
