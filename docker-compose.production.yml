@@ -8,6 +8,10 @@ services:
     restart: always
     volumes:
       - ./images:/app/images
+      # Production:
+      # mkdir -p ~/data/lenslocked.com/psql
+      # mkdir -p ~/data/lenslocked.com/images
+      # - ~/data/lenslocked.com/images:/app/images
     # ports removed in production because caddy server will proxy the go app
     # ports:
       # - 3000:3000
@@ -23,3 +27,12 @@ services:
       # - "443:443/udp"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
+
+  postgres:
+    environment:
+      PGDATA: /var/lib/postgresql/data/pgdata
+      POSTGRES_USER: ${PSQL_USER}
+      POSTGRES_PASSWORD: ${PSQL_PASSWORD}
+      POSTGRES_DB: ${PSQL_DATABASE}
+    volumes:
+      - ~/data/lenslocked.com/psql:/var/lib/postgresql/data/pgdata
