@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -28,10 +29,17 @@ func (oa OAuth) Connect(w http.ResponseWriter, r *http.Request) {
 
 	url := config.AuthCodeURL(
 		state,
-		// todo: read redirect_uri from env
-		oauth2.SetAuthURLParam("redirect_uri", "http://localhost:3000/oauth/dropbox/callback"),
+		// todo: read redirect_uri from env?
+		oauth2.SetAuthURLParam("redirect_uri", redirectURI(r, provider)),
 		oauth2.AccessTypeOffline,
 	)
 
 	http.Redirect(w, r, url, http.StatusFound)
+}
+
+func redirectURI(r *http.Request, provider string) string {
+	if r.Host == "localhost:3000" {
+		return fmt.Sprintf("http://localhost:3000/oauth/%s/callback", provider)
+	}
+	return fmt.Sprintf("https://casts.lenslocked.com/oauth/%s/callback", provider)
 }
