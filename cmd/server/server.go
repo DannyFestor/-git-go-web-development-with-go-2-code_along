@@ -15,6 +15,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/gorilla/csrf"
 	"github.com/joho/godotenv"
+	"golang.org/x/oauth2"
 )
 
 // added modd for dynamic reloading
@@ -104,6 +105,10 @@ func run(cfg config) error {
 	galleryController.Templates.Index = views.Must(views.ParseFS(templates.FS, "galleries/index.gohtml", "tailwind.gohtml"))
 	galleryController.Templates.Show = views.Must(views.ParseFS(templates.FS, "galleries/show.gohtml", "tailwind.gohtml"))
 
+	oauthController := controllers.OAuth{
+		ProviderConfigs: cfg.OAuthProviders,
+	}
+
 	// Set Up Routing
 	r := chi.NewRouter()
 	r.Use(middleware.RequestID)
@@ -156,6 +161,12 @@ func run(cfg config) error {
 		})
 	})
 
+	r.Route("/oauth/{provider}", func(r chi.Router) {
+		r.Use(userMiddleware.RequireUser)
+		r.Get("/connect", oauthController.Connect)
+		r.Get("/callback", oauthController.Callback)
+	})
+
 	// http.Dir is type String that has the receiver function Open(name string) (File, error).
 	// With this, it implements the http.FileSystem interface.
 	// This syntax typecasts the string "assets" to type http.Dir .
@@ -181,6 +192,7 @@ type config struct {
 	Server struct {
 		Address string
 	}
+	OAuthProviders map[string]*oauth2.Config
 }
 
 func loadEnvConfig() (config, error) {
@@ -219,6 +231,20 @@ func loadEnvConfig() (config, error) {
 
 	// Server Setup // TODO: get from .env
 	cfg.Server.Address = os.Getenv("SERVER_ADDRESS")
+
+	// OAuth Providers
+	cfg.OAuthProviders = make(map[string]*oauth2.Config)
+	// Dropbox
+	dbxConfig := &oauth2.Config{
+		ClientID:     os.Getenv("DROPBOX_APP_ID"),
+		ClientSecret: os.Getenv("DROPBOX_APP_SECRET"),
+		Scopes:       []string{"files.metadata.read", "files.content.read"},
+		Endpoint: oauth2.Endpoint{
+			AuthURL:  "https://www.dropbox.com/oauth2/authorize",
+			TokenURL: "https://api.dropboxapi.com/oauth2/token",
+		},
+	}
+	cfg.OAuthProviders["dropbox"] = dbxConfig
 
 	return cfg, nil
 }
