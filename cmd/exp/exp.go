@@ -34,7 +34,15 @@ func main() {
 		},
 	}
 
-	url := conf.AuthCodeURL("state", oauth2.AccessTypeOffline)
+	url := conf.AuthCodeURL(
+		"state",
+		// for offline access (to get a refresh token)
+		// the none-standard name "token_access_type" must be set
+		oauth2.SetAuthURLParam("token_access_type", "offline"),
+		// oauth2 provided AccessTypeOffline uses "access_type" instead
+		// so the dropbox API does not return a refresh token
+		oauth2.AccessTypeOffline,
+	)
 	fmt.Printf("Visit the URL for the auth dialog: %v\n", url)
 	fmt.Printf("Once you have a code, paste it and press enter: ")
 
