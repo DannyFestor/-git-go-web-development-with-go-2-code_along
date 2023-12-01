@@ -31,7 +31,6 @@ func (oa OAuth) Connect(w http.ResponseWriter, r *http.Request) {
 		state,
 		// todo: read redirect_uri from env?
 		oauth2.SetAuthURLParam("redirect_uri", redirectURI(r, provider)),
-		oauth2.AccessTypeOffline,
 	)
 
 	http.Redirect(w, r, url, http.StatusFound)
