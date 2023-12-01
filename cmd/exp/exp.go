@@ -28,6 +28,7 @@ func main() {
 		ClientSecret: dropboxSecret,
 		Scopes:       []string{"files.metadata.read", "files.content.read"},
 		Endpoint: oauth2.Endpoint{
+			// links at https://www.dropbox.com/developers/documentation/http/documentation
 			AuthURL:  "https://www.dropbox.com/oauth2/authorize",
 			TokenURL: "https://api.dropboxapi.com/oauth2/token",
 		},
@@ -47,6 +48,7 @@ func main() {
 	}
 
 	client := conf.Client(ctx, tok)
+	// url: https://www.dropbox.com/developers/documentation/http/documentation#files-list_folder
 	resp, err := client.Post("https://api.dropboxapi.com/2/files/list_folder", "application/json", strings.NewReader(`{
 		"path": ""
 	}`))
