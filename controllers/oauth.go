@@ -70,6 +70,35 @@ func (oa OAuth) Callback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// test the api, comment out if works
+	/*
+		client := config.Client(r.Context(), token)
+		resp, err := client.Post(
+			"https://api.dropboxapi.com/2/files/list_folder",
+			"application/json",
+			strings.NewReader(`{"path": ""}`),
+		)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		defer resp.Body.Close()
+
+		unpretty, err := io.ReadAll(resp.Body)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		var pretty bytes.Buffer
+		err = json.Indent(&pretty, unpretty, "", "  ")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		pretty.WriteTo(w)
+	*/
+
 	w.Header().Set("Content-Type", "application/json")
 	enc := json.NewEncoder(w)
 	enc.SetIndent("", "  ")
