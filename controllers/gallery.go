@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"path/filepath"
 	"strconv"
+	"sync"
 
 	"github.com/danakin/web-dev-with-go-2-code_along/context"
 	"github.com/danakin/web-dev-with-go-2-code_along/errors"
@@ -349,13 +350,26 @@ func (g Gallery) ImageViaURL(w http.ResponseWriter, r *http.Request) {
 	}
 
 	files := r.PostForm["files"]
+	// consecutive downloads
+	// for _, file := range files {
+	// 	err = g.GalleryService.CreateImageViaURL(gallery.ID, file)
+	// 	if err != nil {
+	// 		http.Error(w, "Something went wrong with an image: "+file, http.StatusInternalServerError)
+	// 		return
+	// 	}
+	// }
+
+	// concurrent downloads
+	var wg sync.WaitGroup
+	wg.Add(len(files))
 	for _, file := range files {
-		err = g.GalleryService.CreateImageViaURL(gallery.ID, file)
-		if err != nil {
-			http.Error(w, "Something went wrong with an image: "+file, http.StatusInternalServerError)
-			return
-		}
+		imageFile := file
+		go func() {
+			g.GalleryService.CreateImageViaURL(gallery.ID, imageFile)
+			wg.Done()
+		}()
 	}
+	wg.Wait()
 
 	editPath := fmt.Sprintf("/galleries/%d/edit", gallery.ID)
 
