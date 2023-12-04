@@ -76,7 +76,14 @@
     <script>
         let options = {
             success: function(files) {
-                alert("Here's the file link: " + files[0].link)
+                for(let i = 0; i < files.length; i++) {
+                    var input = document.createElement("input");
+                    input.type = "hidden";
+                    input.name = "files";
+                    input.value = files[i].link;
+                    dbxForm.appendChild(input);
+                }
+                dbxForm.submit();
             },
             linkType: "direct",
             multiselect: true,
@@ -84,9 +91,17 @@
             folderselect: false,
         };
 
-        let button = Dropbox.createChooseButton(options);
-        //document.getElementById("container").appendChild(button);    
-        document.body.appendChild(button);
+        function setupDropbox() {
+            let dbxForm = document.getElementById("dropbox-chooser-form");
+            if(dbxForm === null) {
+                return;
+            }
+            let options = { ... };
+            let button = Dropbox.createChooseButton(options);
+            dbxForm.appendChild(button);
+        }
+        
+        setupDropbox();
     </script>
 </body>
 </html>

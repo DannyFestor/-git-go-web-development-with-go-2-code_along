@@ -37,6 +37,10 @@
     {{template "upload_image_form" .}}
   </div>
 
+  <div class="py-4">
+    {{template "images_via_dropbox_form" .}}
+  </div>
+
     <!-- Images -->
     <div class="py-4">
         <h2 class="pb-2 text-sm font-semibold text-gray-800">Current Images</h2>
@@ -104,5 +108,19 @@
   >
     Delete
   </button>
+</form>
+{{end}}
+
+{{define "images_via_dropbox_form"}}
+<form action="/galleries/{{.ID}}/images/url"
+  method="post"
+  enctype="multipart/form-data"
+  id="dropbox-chooser-form">
+  {{csrfField}}
+  <div class="py-2">
+    <p for="images" class="block mb-2 text-sm font-semibold text-gray-800">
+      Add Images via Dropbox
+    </p>
+  </div>
 </form>
 {{end}}
