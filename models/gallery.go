@@ -239,7 +239,7 @@ func (service *GalleryService) CreateImageViaURL(galleryID int, url string) erro
 		return fmt.Errorf("downloading image: invalid status code %d", resp.StatusCode)
 	}
 
-	// load image into memory
+	// load image into memory because readseeker must have access to a physical file, not a stream
 	imageBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return fmt.Errorf("reading image bytes: %w", err)
