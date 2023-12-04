@@ -371,6 +371,22 @@ func (g Gallery) ImageViaURL(w http.ResponseWriter, r *http.Request) {
 	}
 	wg.Wait()
 
+	// concurrent with error groups
+	// go get -u golang.org/x/sync
+	// eg := errorgroup.Group{}
+	// for _, fileURL := range files {
+	// 	// This avoids a Go bug we can talk about
+	// 	url := fileURL
+	// 	eg.Go(func() error {
+	// 		return g.GalleryService.CreateImageViaURL(gallery.ID, url)
+	// 	})
+	// }
+	// if err := eg.Wait(); err != nil {
+	// 	// Render an error? Some images may have uploaded fine though.
+	// 	// If we had a good way to redirect a user with an error this would work well here.
+	// 	// This could be implemented by putting a "flash" message or error in the user's cookies, then ave e
+	// }
+
 	editPath := fmt.Sprintf("/galleries/%d/edit", gallery.ID)
 
 	http.Redirect(w, r, editPath, http.StatusFound)
