@@ -195,8 +195,8 @@ func (service *GalleryService) Image(galleryID int, filename string) (Image, err
 	}, nil
 }
 
-func (service *GalleryService) CreateImage(galleryID int, filename string, contents io.ReadSeeker) error {
-	err := checkContentType(contents, service.imageContentTypes())
+func (service *GalleryService) CreateImage(galleryID int, filename string, contents io.Reader) error {
+	readBytes, err := checkContentType(contents, service.imageContentTypes())
 	if err != nil {
 		return fmt.Errorf("creating image content type: %v, %w", filename, err)
 	}
@@ -219,7 +219,14 @@ func (service *GalleryService) CreateImage(galleryID int, filename string, conte
 	}
 	defer dst.Close()
 
-	_, err = io.Copy(dst, contents)
+	// reader version
+	completeFile := io.MultiReader(
+		bytes.NewReader(readBytes),
+		contents,
+	)
+
+	// reader passes completeFile, readSeeker passes contents
+	_, err = io.Copy(dst, completeFile)
 	if err != nil {
 		return fmt.Errorf("copying contents to image: %w", err)
 	}
@@ -239,15 +246,18 @@ func (service *GalleryService) CreateImageViaURL(galleryID int, url string) erro
 		return fmt.Errorf("downloading image: invalid status code %d", resp.StatusCode)
 	}
 
-	// load image into memory because readseeker must have access to a physical file, not a stream
-	imageBytes, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return fmt.Errorf("reading image bytes: %w", err)
-	}
+	// // load image into memory because readseeker must have access to a physical file, not a stream
+	// imageBytes, err := io.ReadAll(resp.Body)
+	// if err != nil {
+	// 	return fmt.Errorf("reading image bytes: %w", err)
+	// }
 
-	readSeeker := bytes.NewReader(imageBytes)
+	// readSeeker := bytes.NewReader(imageBytes)
 
-	return service.CreateImage(galleryID, filename, readSeeker)
+	// return service.CreateImage(galleryID, filename, readSeeker)
+
+	// reader can just pass resp.Body with the changes in error
+	return service.CreateImage(galleryID, filename, resp.Body)
 }
 
 func (service *GalleryService) galleryDir(id int) string {

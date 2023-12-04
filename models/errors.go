@@ -23,26 +23,45 @@ func (fe FileError) Error() string {
 
 // io.Reader keeps track of where in a file it is, so read bytes get lost when handling it afterwards
 // while an io.ReadSeeker can be reset so it starts back at the beginning
-func checkContentType(r io.ReadSeeker, allowedTypes []string) error {
-	testBytes := make([]byte, 512)
-	_, err := r.Read(testBytes) // read first 512 bytes of a file because MIME information should be in those
-	if err != nil {
-		return fmt.Errorf("checking content type: %w", err)
-	}
+// func checkContentType(r io.ReadSeeker, allowedTypes []string) error {
+// 	testBytes := make([]byte, 512)
+// 	_, err := r.Read(testBytes) // read first 512 bytes of a file because MIME information should be in those
+// 	if err != nil {
+// 		return fmt.Errorf("checking content type: %w", err)
+// 	}
 
-	_, err = r.Seek(0, 0) // seek to the beginning of the file for handling it afterwards
+// 	_, err = r.Seek(0, 0) // seek to the beginning of the file for handling it afterwards
+// 	if err != nil {
+// 		return fmt.Errorf("checking content type: %w", err)
+// 	}
+
+// 	contentType := http.DetectContentType(testBytes)
+// 	for _, t := range allowedTypes {
+// 		if contentType == t {
+// 			return nil
+// 		}
+// 	}
+
+// 	return FileError{
+// 		Issue: fmt.Sprintf("invalid content type: %v", contentType),
+// 	}
+// }
+
+func checkContentType(r io.Reader, allowedTypes []string) ([]byte, error) {
+	testBytes := make([]byte, 512)
+	n, err := r.Read(testBytes)
 	if err != nil {
-		return fmt.Errorf("checking content type: %w", err)
+		return nil, fmt.Errorf("checking content type: %w", err)
 	}
 
 	contentType := http.DetectContentType(testBytes)
 	for _, t := range allowedTypes {
 		if contentType == t {
-			return nil
+			return testBytes[:n], nil
 		}
 	}
 
-	return FileError{
+	return nil, FileError{
 		Issue: fmt.Sprintf("invalid content type: %v", contentType),
 	}
 }
