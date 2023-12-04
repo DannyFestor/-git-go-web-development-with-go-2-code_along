@@ -27,9 +27,9 @@ func Must(t Template, err error) Template {
 	return t
 }
 
-func ParseFS(fs fs.FS, patterns ...string) (Template, error) {
+func ParseFS(fs fs.FS, tplToExecute string, patterns ...string) (Template, error) {
 	// templates are parsed from base name only, so having a/foo.gohtml and b/foo.gohtml will be parsed as foo and only b/foo.gohtml will be available; https://pkg.go.dev/html/template#ParseFiles
-	tpl := template.New(path.Base(patterns[0]))
+	tpl := template.New(path.Base(tplToExecute))
 	tpl = tpl.Funcs(
 		template.FuncMap{
 			"csrfField": func() (template.HTML, error) { // gets overwritten in execute because we don't have access to request at this point (this gets run at the start of the app instead of request so we don't have to parse all templates at every request)
@@ -43,6 +43,7 @@ func ParseFS(fs fs.FS, patterns ...string) (Template, error) {
 			},
 		},
 	)
+	patterns = append(patterns, tplToExecute)
 	tpl, err := tpl.ParseFS(fs, patterns...)
 	if err != nil {
 		return Template{}, fmt.Errorf("parsing FS template: %w", err)

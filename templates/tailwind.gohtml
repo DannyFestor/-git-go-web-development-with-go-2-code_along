@@ -66,43 +66,7 @@
         closable.remove();
     }
     </script>
-
-    <script
-        type="text/javascript"
-        src="https://www.dropbox.com/static/api/2/dropins.js"
-        id="dropboxjs"
-        data-app-key="9q5s9erwb14mpum"></script>
-
-    <script>
-        function setupDropbox() {
-            let dbxForm = document.getElementById("dropbox-chooser-form");
-            if(dbxForm === null) {
-                return;
-            }
-
-            let options = {
-                success: function(files) {
-                    for(let i = 0; i < files.length; i++) {
-                        var input = document.createElement("input");
-                        input.type = "hidden";
-                        input.name = "files";
-                        input.value = files[i].link;
-                        dbxForm.appendChild(input);
-                    }
-                    dbxForm.submit();
-                },
-                linkType: "direct",
-                multiselect: true,
-                extensions: ['images'],
-                folderselect: false,
-            };
-            
-            let button = Dropbox.createChooseButton(options);
-            dbxForm.appendChild(button);
-        }
-        
-        setupDropbox();
-    </script>
+    {{block "custom-footer" .}}<p>No Custom Footer</p>{{end}}
 </body>
 </html>
 {{ end }}
