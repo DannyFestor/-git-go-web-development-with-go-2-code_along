@@ -66,6 +66,28 @@
         closable.remove();
     }
     </script>
+
+    <script
+        type="text/javascript"
+        src="https://www.dropbox.com/static/api/2/dropins.js"
+        id="dropboxjs"
+        data-app-key="9q5s9erwb14mpum"></script>
+
+    <script>
+        let options = {
+            success: function(files) {
+                alert("Here's the file link: " + files[0].link)
+            },
+            linkType: "direct",
+            multiselect: true,
+            extensions: ['images'],
+            folderselect: false,
+        };
+
+        let button = Dropbox.createChooseButton(options);
+        //document.getElementById("container").appendChild(button);    
+        document.body.appendChild(button);
+    </script>
 </body>
 </html>
 {{ end }}
