@@ -335,3 +335,27 @@ func (g Gallery) filename(w http.ResponseWriter, r *http.Request) string {
 	filename = filepath.Base(filename)
 	return filename
 }
+
+func (g Gallery) ImageViaURL(w http.ResponseWriter, r *http.Request) {
+	gallery, err := g.galleryByID(w, r, userMustOwnGallery)
+	if err != nil {
+		return
+	}
+
+	err = r.ParseForm()
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, "Something went wrong", http.StatusBadRequest)
+		return
+	}
+
+	files := r.PostForm["files"]
+	for _, file := range files {
+		// TODO: Download the file
+		fmt.Printf("Downloading %s...\n", file)
+	}
+
+	editPath := fmt.Sprintf("/galleries/%d/edit", gallery.ID)
+
+	http.Redirect(w, r, editPath, http.StatusFound)
+}

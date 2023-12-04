@@ -156,8 +156,9 @@ func run(cfg config) error {
 			r.Get("/{id}/edit", galleryController.Edit)
 			r.Post("/{id}", galleryController.Update) // todo: spoof put method?
 			r.Post("/{id}/delete", galleryController.Destroy)
-			r.Post("/{id}/images/{filename}/delete", galleryController.DeleteImage)
 			r.Post("/{id}/images", galleryController.UploadImage)
+			r.Post("/{id}/images/url", galleryController.ImageViaURL)
+			r.Post("/{id}/images/{filename}/delete", galleryController.DeleteImage)
 		})
 	})
 
